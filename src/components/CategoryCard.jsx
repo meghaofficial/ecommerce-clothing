@@ -3,16 +3,22 @@ import { Link } from "react-router-dom";
 
 const CategoryCard = ({ imgSrc, content }) => {
   return (
-    <div className='relative group w-fit overflow-y-hidden'>
-      <img src={imgSrc} alt="card" className='w-[200px] h-[300px]' />
-      <div className='w-[200px] h-[300px] bg-white opacity-50 absolute top-0 translate-y-[300px] group-hover:translate-y-0 transition-all duration-300 ease-in-out'></div>
-      <div className='text-white absolute top-0 flex items-center justify-end flex-col w-[200px] h-[300px] translate-y-[300px] group-hover:translate-y-0 transition-all duration-300 ease-in-out'>
-            <p className='playfair-display w-[150px] text-center text-[18px] text-black'>{content}</p>
-            <Link className='bg-black px-6 py-2 my-5 text-[12px]'>Explore</Link>
+    <div className="relative group w-fit overflow-y-hidden overflow-x-hidden">
+      <div className="relative group w-auto h-auto">
+        <img src={imgSrc} alt="card" className="w-full h-full object-cover" />
+
+        <div className="absolute inset-0 bg-white opacity-50 translate-y-full group-hover:translate-y-0 transition-all duration-300 ease-in-out"></div>
+        
+        <div className="text-white absolute bottom-0 w-full flex items-center justify-end flex-col translate-y-[300px] group-hover:translate-y-0 transition-all duration-300 ease-in-out">
+          <p className="playfair-display w-auto text-center text-[0.9rem] text-black">
+            {content}
+          </p>
+          <Link className="bg-black px-6 py-2 my-5 text-[12px]">Explore</Link>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 // const CategoryCard = ({ imgSrc, content }) => {
 //   return (

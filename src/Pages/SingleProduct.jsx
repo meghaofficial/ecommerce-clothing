@@ -6,6 +6,7 @@ import darkOnMan from "../assets/dark-jeans-on-man.jpg";
 import ProductCard from "../components/ProductCard";
 import ImageZoom from "react-image-zooom";
 import Footer from "../components/Footer";
+import ProductCardWithoutHover from "../components/ProductCardWithoutHover";
 
 const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
@@ -18,9 +19,9 @@ const SingleProduct = () => {
     <div className="mt-16">
       <div className="flex flex-col md:flex-row max-w-6xl mx-auto p-8 gap-12">
         {/* Left - Product Image */}
-        <div className="flex-1 flex justify-center items-start select-none">
+        <div className="flex-1 flex justify-center md:items-start items-center select-none md:flex-row  flex-col-reverse">
           {/* sub images */}
-          <div className="flex flex-col items-center justify-center gap-2 me-2">
+          <div className="flex md:flex-col flex-row items-center md:justify-center md:gap-2 me-2 justify-evenly md:w-auto w-full md:mt-0 mt-4">
             <img
               src={light}
               alt="{darkOnMan}"
@@ -46,12 +47,17 @@ const SingleProduct = () => {
               onClick={() => setCurrImg(darkOnMan)}
             />
           </div>
-          <div className="w-[283px]">
-            <ImageZoom
+          <div className="md:w-[283px] w-full">
+            {/* <ImageZoom
               src={currImg}
               alt="Printed V-Neck T-shirt"
               className="object-cover md:w-auto"
               fullWidth={true}
+            /> */}
+            <img
+              src={currImg}
+              alt="card"
+              className="w-full h-full object-cover"
             />
           </div>
         </div>
@@ -116,11 +122,11 @@ const SingleProduct = () => {
           </div> */}
         </div>
       </div>
-      <div className="my-10">
+      <div className="md:my-10">
         <ProductTabs />
       </div>
       {/* related products */}
-      <div className="my-10">
+      <div className="my-10 md:block hidden">
         <p className="text-center text-3xl urbanist font-semibold mb-6">
           Related Products
         </p>
@@ -128,6 +134,20 @@ const SingleProduct = () => {
           <ProductCard />
           <ProductCard />
           <ProductCard />
+        </div>
+      </div>
+      {/* related products - small screen */}
+      <div className="my-10 md:hidden">
+        <p className="text-center text-3xl urbanist font-semibold mb-6">
+          Related Products
+        </p>
+        <div className="flex items-center justify-center">
+          <div className="md:hidden grid sm:grid-cols-2 lg:grid-cols-1 gap-10 pb-20 mt-6">
+            <ProductCardWithoutHover />
+            <ProductCardWithoutHover />
+            <ProductCardWithoutHover />
+            <ProductCardWithoutHover />
+          </div>
         </div>
       </div>
       <Footer />
@@ -143,7 +163,7 @@ function ProductTabs() {
     switch (activeTab) {
       case "Description":
         return (
-          <div className="text-gray-600 mt-6 space-y-6 text-[0.8em]     ">
+          <div className="text-gray-600 mt-6 space-y-6 text-[0.8em]">
             <p>
               Etiam cursus condimentum vulputate. Nulla nisi orci, vulputate at
               dolor et, malesuada ultrices nisi. Ut varius ex ut purus
@@ -303,14 +323,14 @@ function ProductTabs() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="max-w-4xl mx-auto md:p-8 px-8 pb-8">
       {/* Tabs */}
-      <div className="flex justify-center space-x-12">
+      <div className="flex justify-center md:space-x-12 gap-5">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-2 ${
+            className={`pb-2 md:text-[16px] text-[14px] text-nowrap ${
               activeTab === tab ? "border-b-2 text-black" : "text-gray-500"
             }`}
           >

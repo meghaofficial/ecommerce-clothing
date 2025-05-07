@@ -64,11 +64,11 @@ export default function Carousel() {
           return (
             <div
               key={slide.id}
-              className="w-full flex-shrink-0 flex h-[90vh] relative"
+              className="w-full flex-shrink-0 flex md:h-[90vh] relative"
               style={{ width: `${100 / slides.length}%` }}
             >
               {/* left */}
-              <div className="w-[30%] flex items-center">
+              <div className="w-[30%] items-center md:flex hidden">
                 <img
                   src={slide.leftImg}
                   alt="demonstration"
@@ -79,10 +79,12 @@ export default function Carousel() {
               </div>
 
               {/* mid-info */}
-              <div className="absolute left-[25%] top-[40%]">
+              <div className="absolute left-[25%] top-[40%] md:block hidden">
                 <div
                   className={`flex items-center relative left-[-120px] ${
-                    isActive ? "animate__animated animate__fadeInUp animate__delay-1s" : ""
+                    isActive
+                      ? "animate__animated animate__fadeInUp animate__delay-1s"
+                      : ""
                   }`}
                 >
                   <div className="border-b w-[120px]"></div>
@@ -111,7 +113,39 @@ export default function Carousel() {
               </div>
 
               {/* right */}
-              <div className="w-[70%] bg-[#E6E6E6] flex items-center justify-center">
+              <div className="md:w-[70%] w-full bg-[#E6E6E6] flex flex-col items-center justify-center md:py-0 py-[50px] gap-10">
+                {/* top-info for small screen */}
+                <div className="md:hidden flex items-center flex-col">
+                  <div
+                    className={`flex items-center left-[-120px] ${
+                      isActive
+                        ? "animate__animated animate__fadeInUp animate__delay-1s"
+                        : ""
+                    }`}
+                  >
+                    <p className="text-nowrap mx-2 tracking-[5px] text-[12px]">
+                      {slide.withHash}
+                    </p>
+                  </div>
+                  <p
+                    className={`text-[40px] font-semibold ms-2 ${
+                      isActive
+                        ? "animate__animated animate__fadeInUp animate__delay-2s"
+                        : ""
+                    }`}
+                  >
+                    {slide.boldContent}
+                  </p>
+                  <button
+                    className={`underline cursor-pointer text-[17px] font-semibold ms-2 ${
+                      isActive
+                        ? "animate__animated animate__fadeInUp animate__delay-3s"
+                        : ""
+                    }`}
+                  >
+                    {slide.shopNow}
+                  </button>
+                </div>
                 <img
                   src={slide.rightImg}
                   alt="man"
@@ -128,15 +162,15 @@ export default function Carousel() {
       {/* Navigation */}
       <button
         onClick={prevSlide}
-        className="absolute top-1/2 left-4 -translate-y-1/2 bg-white text-black rounded-full p-2 shadow hover:bg-gray-200"
+        className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400 rounded-full p-2"
       >
         <ChevronLeft />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute top-1/2 right-4 -translate-y-1/2 bg-white text-black rounded-full p-2 shadow hover:bg-gray-200"
+        className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full p-2 text-gray-400 cursor-pointer"
       >
-        <ChevronRight />
+        <ChevronRight size={30} />
       </button>
     </div>
   );

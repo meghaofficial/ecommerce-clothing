@@ -6,16 +6,18 @@ import Homepage from './Pages/Homepage';
 import ProductPage from './Pages/ProductPage';
 import SingleProduct from './Pages/SingleProduct';
 import ScrollToTop from './utils/scrollToTop';
+import ProfilePage from './Pages/ProfilePage';
 
 const App = () => {
   return (
-    <div>
+    <div className='overflow-x-hidden overflow-y-auto'>
       <Navbar />
       <ScrollToTop />
       <Routes>
         <Route path='/' element={<Homepage />} />
         <Route path='/products' element={<ProductPage />} />
         <Route path='/single-product' element={<SingleProduct />} />
+        <Route path='/profile' element={<ProfilePage />} />
       </Routes>
     </div>
   )

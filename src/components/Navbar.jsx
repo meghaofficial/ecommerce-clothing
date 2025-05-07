@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Menu, Search, ShoppingCart, UserRound, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   {
@@ -34,6 +34,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [displaySearch, setDisplaySearch] = useState(false);
+  const location = useLocation();
 
   return (
     <div className="bg-white text-black w-full outfit font-light fixed top-0 z-[9999] border-b border-b-gray-200">
@@ -61,7 +62,11 @@ export default function Navbar() {
                     className="absolute top-full mt-2 bg-white text-black rounded shadow-lg py-2"
                   >
                     {item.subItems.map((sub, i) => (
-                      <Link to="/products" className="w-full" state={{ subCategory: sub }} >
+                      <Link
+                        to="/products"
+                        className="w-full"
+                        state={{ subCategory: sub }}
+                      >
                         <div
                           key={i}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
@@ -82,11 +87,23 @@ export default function Navbar() {
             onClick={() => setDisplaySearch((prev) => !prev)}
           />
           <div className="gap-3 flex items-center justify-between">
-            <UserRound
-              style={{ strokeWidth: 1 }}
-              size={20}
-              className="cursor-pointer"
-            />
+            <Link to="/profile">
+              <div
+                // className={`${
+                //   location.pathname === "/profile"
+                //     ? "text-white bg-black p-1.5"
+                //     : ""
+                // }`}
+              >
+                <UserRound
+                  style={{
+                    strokeWidth: location.pathname === "/profile" ? 2.1 : 2,
+                  }}
+                  size={20}
+                  className="cursor-pointer"
+                />
+              </div>
+            </Link>
             <Heart
               style={{ strokeWidth: 1 }}
               size={20}
@@ -175,16 +192,58 @@ const MobileNav = ({ navItems }) => {
 
   return (
     <div className="md:hidden bg-white h-[90vh]">
+      <div className="flex my-3 gap-5 flex-col">
+        <div className="flex items-center gap-3">
+          <Link to="/profile" className="cursor-pointer">
+            <div
+              className={`${
+                location.pathname === "/profile"
+                  ? "text-white bg-black p-1.5"
+                  : ""
+              }`}
+            >
+              <UserRound
+                style={{ strokeWidth: 2 }}
+                size={20}
+                className="cursor-pointer"
+              />
+            </div>
+          </Link>
+          <p
+            className={`${
+              location.pathname === "/profile" ? "font-[500]" : "font-[350]"
+            } text-[15px]`}
+          >
+            PROFILE
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Heart
+            style={{ strokeWidth: 2 }}
+            size={20}
+            className="cursor-pointer"
+          />
+          <p className="font-[350] text-[15px]">WISHLIST</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <ShoppingCart
+            style={{ strokeWidth: 2 }}
+            size={20}
+            className="cursor-pointer"
+          />
+          <p className="font-[350] text-[15px]">CART</p>
+        </div>
+      </div>
       {navItems.map((item, index) => (
         <div key={index} className="py-2">
           {" "}
           {/* border-b border-[#D4C9BE]  */}
           <div
-            className="font-[300] text-[13px] mb-1 flex justify-between items-center cursor-pointer"
+            className="font-[350] text-[15px] mb-1 flex justify-between items-center cursor-pointer"
             onClick={() => toggleIndex(index)}
           >
             {item.label}
-            <span className="text-xs">{activeIndex === index ? "-" : "+"}</span>
+            <span className="text-lg">{activeIndex === index ? "-" : "+"}</span>
           </div>
           <AnimatePresence>
             {activeIndex === index && (
@@ -198,7 +257,7 @@ const MobileNav = ({ navItems }) => {
                 {item.subItems.map((sub, i) => (
                   <div
                     key={i}
-                    className="py-1 text-gray-400 text-sm cursor-pointer hover:text-black"
+                    className="py-1 text-gray-600 text-md cursor-pointer hover:text-black"
                   >
                     {sub}
                   </div>
@@ -208,23 +267,15 @@ const MobileNav = ({ navItems }) => {
           </AnimatePresence>
         </div>
       ))}
-      <div className="flex items-center mt-3 gap-5">
-        {/* <p className="text-[13px]">PROFILE</p> */}
-        <UserRound
-          style={{ strokeWidth: 1 }}
-          size={20}
-          className="cursor-pointer"
-        />
-        <Heart
-          style={{ strokeWidth: 1 }}
-          size={20}
-          className="cursor-pointer"
-        />
-        <ShoppingCart
-          style={{ strokeWidth: 1 }}
-          size={20}
-          className="cursor-pointer"
-        />
+      <div className="relative h-1/3">
+        <div className="absolute bottom-0 flex items-center gap-2 w-full">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="border w-full p-4"
+          />
+          <button className="bg-black text-white p-4 border">Search</button>
+        </div>
       </div>
     </div>
   );
