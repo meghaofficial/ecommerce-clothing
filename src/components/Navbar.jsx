@@ -50,9 +50,7 @@ export default function Navbar() {
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              <button className="hover:text-[#D4C9BE] syne">
-                {item.label}
-              </button>
+              <p className="hover:text-[#D4C9BE] syne">{item.label}</p>
               <AnimatePresence>
                 {hoveredIndex === index && (
                   <motion.div
@@ -61,20 +59,37 @@ export default function Navbar() {
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute top-full mt-2 bg-white text-black rounded shadow-lg py-2"
                   >
-                    {item.subItems.map((sub, i) => (
-                      <Link
-                        to="/products"
-                        className="w-full"
-                        state={{ subCategory: sub }}
-                      >
-                        <div
-                          key={i}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
+                    {item.label === "PRODUCTS" &&
+                      item.subItems.map((sub, i) => (
+                        <Link
+                          to="/products"
+                          className="w-full"
+                          state={{ subCategory: sub }}
                         >
-                          {sub}
-                        </div>
-                      </Link>
+                          <div
+                            key={i}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
+                          >
+                            {sub}
+                          </div>
+                        </Link>
                     ))}
+
+                    {item.label === "SUPPORT" &&
+                      item.subItems.map((sub, i) => (
+                        <Link
+                          to={`/${sub.toLowerCase()}`}
+                          className="w-full"
+                          state={{ subCategory: sub }}
+                        >
+                          <div
+                            key={i}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
+                          >
+                            {sub}
+                          </div>
+                        </Link>
+                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -88,32 +103,28 @@ export default function Navbar() {
           />
           <div className="gap-3 flex items-center justify-between">
             <Link to="/profile">
-              <div
-                // className={`${
-                //   location.pathname === "/profile"
-                //     ? "text-white bg-black p-1.5"
-                //     : ""
-                // }`}
-              >
-                <UserRound
-                  style={{
-                    strokeWidth: location.pathname === "/profile" ? 2.1 : 2,
-                  }}
-                  size={20}
-                  className="cursor-pointer"
-                />
-              </div>
+              <UserRound
+                style={{
+                  strokeWidth: 1,
+                }}
+                size={20}
+                className="cursor-pointer"
+              />
             </Link>
-            <Heart
-              style={{ strokeWidth: 1 }}
-              size={20}
-              className="cursor-pointer"
-            />
-            <ShoppingCart
-              style={{ strokeWidth: 1 }}
-              size={20}
-              className="cursor-pointer"
-            />
+            <Link to="/wishlist">
+              <Heart
+                style={{ strokeWidth: 1 }}
+                size={20}
+                className="cursor-pointer"
+              />
+            </Link>
+            <Link to="/cart">
+              <ShoppingCart
+                style={{ strokeWidth: 1 }}
+                size={20}
+                className="cursor-pointer"
+              />
+            </Link>
           </div>
         </div>
         <div className="md:hidden">
@@ -183,7 +194,7 @@ export default function Navbar() {
   );
 }
 
-const MobileNav = ({ navItems }) => {
+const MobileNav = ({ navItems, setMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const toggleIndex = (index) => {
@@ -193,22 +204,24 @@ const MobileNav = ({ navItems }) => {
   return (
     <div className="md:hidden bg-white h-[90vh]">
       <div className="flex my-3 gap-5 flex-col">
-        <div className="flex items-center gap-3">
-          <Link to="/profile" className="cursor-pointer">
-            <div
-              className={`${
-                location.pathname === "/profile"
-                  ? "text-white bg-black p-1.5"
-                  : ""
-              }`}
-            >
-              <UserRound
-                style={{ strokeWidth: 2 }}
-                size={20}
-                className="cursor-pointer"
-              />
-            </div>
-          </Link>
+        <Link
+          to="/profile"
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className={`${
+              location.pathname === "/profile"
+                ? "text-white bg-black p-1.5"
+                : ""
+            }`}
+          >
+            <UserRound
+              style={{ strokeWidth: 2 }}
+              size={20}
+              className="cursor-pointer"
+            />
+          </div>
           <p
             className={`${
               location.pathname === "/profile" ? "font-[500]" : "font-[350]"
@@ -216,23 +229,23 @@ const MobileNav = ({ navItems }) => {
           >
             PROFILE
           </p>
-        </div>
-        <div className="flex items-center gap-3">
+        </Link>
+        <Link to="/wishlist" className="flex items-center gap-3">
           <Heart
             style={{ strokeWidth: 2 }}
             size={20}
             className="cursor-pointer"
           />
           <p className="font-[350] text-[15px]">WISHLIST</p>
-        </div>
-        <div className="flex items-center gap-3">
+        </Link>
+        <Link to="/cart" className="flex items-center gap-3">
           <ShoppingCart
             style={{ strokeWidth: 2 }}
             size={20}
             className="cursor-pointer"
           />
           <p className="font-[350] text-[15px]">CART</p>
-        </div>
+        </Link>
       </div>
       {navItems.map((item, index) => (
         <div key={index} className="py-2">
