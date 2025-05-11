@@ -284,7 +284,7 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
         <div className="absolute bottom-0 flex items-center gap-2 w-full">
           <input
             type="text"
-            placeholder="Searchhhhh..."
+            placeholder="Search..."
             className="border w-full p-4"
           />
           <button className="bg-black text-white p-4 border">Search</button>
