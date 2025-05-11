@@ -6,7 +6,7 @@ const PersonalInformation = () => {
   const [displayPwd, setDisplayPwd] = useState(false);
 
   return (
-    <div className="p-10 w-full border border-gray-300 mt-10 me-10 overflow-y-auto h-[75vh]">
+    <div className="md:p-10 p-5 w-full border border-gray-300 md:mt-10 md:me-10 overflow-y-auto md:h-[75vh]">
       {!isEdit ? (
         <div className="tracking-wider">
           <div className="flex items-center justify-end cursor-pointer">
@@ -39,19 +39,19 @@ const PersonalInformation = () => {
             <input
               type="text"
               placeholder="Full Name"
-              className="border p-3 w-[70%]"
+              className="border p-3 md:w-[70%]"
             />
             <input
               type="text"
               placeholder="Phone"
-              className="border p-3 w-[70%]"
+              className="border p-3 md:w-[70%]"
             />
             <input
               type="text"
               placeholder="Street No./Area/LandMark"
-              className="border p-3 w-[70%]"
+              className="border p-3 md:w-[70%]"
             />
-            <div className="flex items-center w-[70%] gap-2">
+            <div className="flex items-center md:w-[70%] gap-2 md:flex-row flex-col">
               <select className="border p-3 w-full tracking-wider">
                 <option value="">SELECT DISTRICT/CITY</option>
                 <option value="Aligarh">ALIGARH</option>
@@ -74,33 +74,33 @@ const PersonalInformation = () => {
             <input
               type="submit"
               value="SUBMIT"
-              className="bg-black text-white w-[70%] p-3 cursor-pointer"
+              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
             />
           </form>
           {/* email */}
           <form className="flex flex-col gap-4 mt-[70px] text-[0.9em]">
-            <div className="flex w-[70%] items-center">
+            <div className="flex md:w-[70%] items-center">
               <p className="text-nowrap me-2">UPDATE EMAIL</p>
               <div className="border-b h-1 w-full"></div>
             </div>
             <input
               type="email"
               placeholder="Email"
-              className="border p-3 w-[70%]"
+              className="border p-3 md:w-[70%]"
             />
             <input
               type="submit"
               value="SUBMIT"
-              className="bg-black text-white w-[70%] p-3 cursor-pointer"
+              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
             />
           </form>
           {/* password */}
           <form className="flex flex-col gap-4 mt-[70px] text-[0.9em]">
-            <div className="flex w-[70%] items-center">
+            <div className="flex md:w-[70%] items-center">
               <p className="text-nowrap me-2">UPDATE PASSWORD</p>
               <div className="border-b h-1 w-full"></div>
             </div>
-            <div className="relative w-[70%]">
+            <div className="relative md:w-[70%]">
               <input
                 type={displayPwd ? "text" : "password"}
                 placeholder="Password"
@@ -125,7 +125,7 @@ const PersonalInformation = () => {
             <input
               type="submit"
               value="SUBMIT"
-              className="bg-black text-white w-[70%] p-3 cursor-pointer"
+              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
             />
           </form>
         </>

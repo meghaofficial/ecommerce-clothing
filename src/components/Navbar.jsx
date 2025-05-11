@@ -111,14 +111,14 @@ export default function Navbar() {
                 className="cursor-pointer"
               />
             </Link>
-            <Link to="/wishlist">
+            <Link to="/wishlist" onClick={() => setMenuOpen(false)}>
               <Heart
                 style={{ strokeWidth: 1 }}
                 size={20}
                 className="cursor-pointer"
               />
             </Link>
-            <Link to="/cart">
+            <Link to="/cart" onClick={() => setMenuOpen(false)}>
               <ShoppingCart
                 style={{ strokeWidth: 1 }}
                 size={20}
@@ -230,7 +230,7 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
             PROFILE
           </p>
         </Link>
-        <Link to="/wishlist" className="flex items-center gap-3">
+        <Link to="/wishlist" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
           <Heart
             style={{ strokeWidth: 2 }}
             size={20}
@@ -238,7 +238,7 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
           />
           <p className="font-[350] text-[15px]">WISHLIST</p>
         </Link>
-        <Link to="/cart" className="flex items-center gap-3">
+        <Link to="/cart" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
           <ShoppingCart
             style={{ strokeWidth: 2 }}
             size={20}

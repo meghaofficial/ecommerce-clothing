@@ -24,14 +24,14 @@ const ProfilePage = () => {
 
   return (
     <div className="mt-16">
-    <div className="flex">
+    <div className="flex md:flex-row flex-col">
       {/* left */}
-      <div className="p-10 w-1/3">
-        <div className="border border-gray-300 w-fit">
+      <div className="p-10 md:w-1/3 w-full">
+        <div className="border border-gray-300 md:w-fit w-full">
           <div
             className={`${
               currTab === 0 ? "bg-black text-white" : "border border-gray-300"
-            } flex items-center justify-between text-[0.7em] w-fit ps-4 py-4 pe-2 cursor-pointer`}
+            } flex items-center justify-between text-[0.7em] w-full ps-4 py-4 pe-2 cursor-pointer`}
             onClick={() => {
               setCurrTab(0);
               navigate("/profile");
@@ -60,11 +60,12 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-
+            <div className="md:px-0 px-10">
       <Outlet />
+      </div>
     </div>
     <div className="mt-10">
-    <Footer />
+      <Footer />
     </div>
     </div>
   );

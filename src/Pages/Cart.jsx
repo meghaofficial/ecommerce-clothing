@@ -9,8 +9,8 @@ const Cart = () => {
         SHOPPING CART
       </p>
       {/* <div className="border-b border-gray-300 w-[90%] h-[10px] m-auto"></div> */}
-      <div className="flex gap-20 py-10 px-20">
-        <div className="w-[60%]">
+      <div className="flex md:gap-20 gap-10 py-10 md:px-20 px-10 md:flex-row flex-col">
+        <div className="md:w-[60%] w-full">
           <div className="border-t w-full flex items-center p-4 justify-between">
             <div>
               <p className="font-semibold text-[22px] playfair-display tracking-wider">
@@ -108,7 +108,7 @@ const Cart = () => {
           </div>
         </div>
         {/* right */}
-        <div className="w-[40%] border h-fit">
+        <div className="md:w-[40%] w-full border h-fit">
           <p className="text-center border-b font-semibold text-[22px] poppins p-3">
             ORDER SUMMARY
           </p>
