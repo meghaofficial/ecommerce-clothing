@@ -1,9 +1,11 @@
 import { Eye, EyeOff, Pencil, X } from "lucide-react";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const PersonalInformation = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [displayPwd, setDisplayPwd] = useState(false);
+  const authInfo = useSelector(state => state.auth.authInfo);
 
   return (
     <div className="md:p-10 p-5 w-full border border-gray-300 md:mt-10 md:me-10 overflow-y-auto md:h-[75vh]">
@@ -13,16 +15,16 @@ const PersonalInformation = () => {
             <Pencil size={18} onClick={() => setIsEdit(true)} />
           </div>
           <p className="text-[1.2em]" title="Full Name">
-            MEGHA SHARMA
+            {authInfo?.fullname}
           </p>
           <p className="text-[1em] my-2" title="Email">
-            megha@gmail.com
+            {authInfo?.email}
           </p>
           <p className="text-[1em] my-2" title="Phone">
-            +91 7983713011
+            +91 {authInfo?.phone || 'xxxxxxxxxx'}
           </p>
           <p className="text-[1em] my-2" title="Address">
-            2/277, Begum Bagh, Aligarh, Uttar Pradesh, 202001
+            {authInfo?.address || 'Your address'}
           </p>
         </div>
       ) : (

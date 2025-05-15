@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Menu, Search, ShoppingCart, UserRound, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const navItems = [
   {
@@ -35,6 +36,7 @@ export default function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [displaySearch, setDisplaySearch] = useState(false);
   const location = useLocation();
+  const authInfo = useSelector(state => state.auth.authInfo);
 
   return (
     <div className="bg-white text-black w-full outfit font-light fixed top-0 z-[9999] border-b border-b-gray-200">
@@ -65,6 +67,7 @@ export default function Navbar() {
                           to="/products"
                           className="w-full"
                           state={{ subCategory: sub }}
+                          key={i}
                         >
                           <div
                             key={i}
@@ -81,6 +84,7 @@ export default function Navbar() {
                           to={`/${sub.toLowerCase()}`}
                           className="w-full"
                           state={{ subCategory: sub }}
+                          key={i}
                         >
                           <div
                             key={i}
