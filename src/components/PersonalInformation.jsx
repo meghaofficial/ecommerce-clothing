@@ -1,14 +1,40 @@
+import axios from "axios";
 import { Eye, EyeOff, Pencil, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { Country, State, City }  from 'country-state-city';
 
 const PersonalInformation = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [displayPwd, setDisplayPwd] = useState(false);
-  const authInfo = useSelector(state => state.auth.authInfo);
+  const authInfo = useSelector((state) => state.auth.authInfo);
+  const countries = Country.getAllCountries();
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+
+
+  useEffect(() => {
+    const cWiseStates = State.getAllStates().filter(stateInfo => stateInfo.countryCode === selectedCountry);
+    setStates(cWiseStates);
+  }, [selectedCountry]);
+
+
+  useEffect(() => {
+    const sWiseCities = City.getAllCities().filter(cityInfo => cityInfo.stateCode === selectedState && cityInfo.countryCode === selectedCountry);
+    setCities(sWiseCities);
+  }, [selectedState])
+
 
   return (
     <div className="md:p-10 p-5 w-full border border-gray-300 md:mt-10 md:me-10 overflow-y-auto md:h-[75vh]">
+    {/* {console.log("countries", countries[0])}
+    {console.log("states", states)}
+    {console.log("citytes", City.getAllCities())} */}
       {!isEdit ? (
         <div className="tracking-wider">
           <div className="flex items-center justify-end cursor-pointer">
@@ -21,10 +47,10 @@ const PersonalInformation = () => {
             {authInfo?.email}
           </p>
           <p className="text-[1em] my-2" title="Phone">
-            +91 {authInfo?.phone || 'xxxxxxxxxx'}
+            +91 {authInfo?.phone || "xxxxxxxxxx"}
           </p>
           <p className="text-[1em] my-2" title="Address">
-            {authInfo?.address || 'Your address'}
+            {authInfo?.address || "Your address"}
           </p>
         </div>
       ) : (
@@ -54,23 +80,29 @@ const PersonalInformation = () => {
               className="border p-3 md:w-[70%]"
             />
             <div className="flex items-center md:w-[70%] gap-2 md:flex-row flex-col">
-              <select className="border p-3 w-full tracking-wider">
+              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedCity(e.target.value)} value={selectedCity}>
                 <option value="">SELECT DISTRICT/CITY</option>
-                <option value="Aligarh">ALIGARH</option>
-                <option value="Mathura">MATHURA</option>
-                <option value="Agra">AGRA</option>
+                {cities?.map((city, index) => {
+                  return (
+                    <option value={city.name} key={index}>{city.name.toUpperCase()}</option>
+                  )
+                })}
               </select>
-              <select className="border p-3 w-full tracking-wider">
+              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedState(e.target.value)} value={selectedState}>
                 <option value="">SELECT STATE</option>
-                <option value="uttar pradesh">UTTAR PRADESH</option>
-                <option value="haryana">HARYANA</option>
-                <option value="punjab">PUNJAB</option>
+                {states?.map((state, index) => {
+                  return (
+                    <option value={state.isoCode} key={index}>{state.name.toUpperCase()}</option>
+                  )
+                })}
               </select>
-              <select className="border p-3 w-full tracking-wider">
+              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedCountry(e.target.value)} value={selectedCountry}>
                 <option value="">SELECT COUNTRY</option>
-                <option value="india">INDIA</option>
-                <option value="russia">RUSSIA</option>
-                <option value="america">AMERICA</option>
+                {countries?.map((country, index) => {
+                  return (
+                    <option value={country.isoCode} key={index}>{country.name.toUpperCase()}</option>
+                  )
+                })}
               </select>
             </div>
             <input

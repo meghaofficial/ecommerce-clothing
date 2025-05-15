@@ -1,8 +1,11 @@
 import { Eye, EyeClosed } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axiosPublic from "../../axiosPublic";
 import Loader from "../../components/Loader";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthInfo } from "../../redux/authSlice";
+import axiosPrivate from "../../axiosPrivate";
 
 const Login = () => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
@@ -17,11 +20,34 @@ const Login = () => {
     setLoginInfo(copyLoginInfo);
   };
 
+  // const authInfo = useSelector((state) => state.auth.authInfo);
+  // const dispatch = useDispatch();
+
+  // const getDetails = async () => {
+  //   try {
+  //     const response = await axiosPrivate.get("/user/profile");
+  //     const user = response.data.user;
+
+  //     dispatch(
+  //       setAuthInfo({
+  //         fullname: user.fullname,
+  //         email: user.email,
+  //         userId: user._id,
+  //         phone: user.phone,
+  //         address: user.address,
+  //         role: user.role,
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to fetch user", error);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = loginInfo;
     if (!email || !password) {
-      alert("Both email and password required!");
+      return alert("Both email and password required!");
     }
     setIsLoading(true);
     try {
@@ -32,6 +58,7 @@ const Login = () => {
         localStorage.setItem("accessToken", jwtToken);
         localStorage.setItem("loggedInUser", name);
         navigate("/");
+        window.location.reload();
       } else {
         setLoginInfo({ email: "", password: "" });
       }
@@ -40,6 +67,10 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   if (loginInfo) getDetails();
+  // }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -99,18 +130,20 @@ const Login = () => {
               type="submit"
               className="ml-auto px-4 py-1 border border-black hover:bg-black hover:text-white transition cursor-pointer"
             >
-            {isLoading ? (
-                  <Loader type="circle" />
-            ) : (
-                  <span>Log in</span>
-            )}
+              {isLoading ? <Loader type="circle" /> : <span>Log in</span>}
             </button>
           </div>
 
-          <div>
+          <div className="flex items-center justify-between">
             <a href="#" className="text-sm text-gray-600 hover:underline">
               Lost your password?
             </a>
+            <Link
+              to="/sign-up"
+              className="text-sm text-gray-600 hover:underline"
+            >
+              Don't have account?
+            </Link>
           </div>
         </form>
       </div>
