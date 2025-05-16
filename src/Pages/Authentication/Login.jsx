@@ -3,9 +3,6 @@ import { useEffect, useState } from "react";
 import axiosPublic from "../../axiosPublic";
 import Loader from "../../components/Loader";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setAuthInfo } from "../../redux/authSlice";
-import axiosPrivate from "../../axiosPrivate";
 
 const Login = () => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
@@ -19,29 +16,6 @@ const Login = () => {
     copyLoginInfo[name] = value;
     setLoginInfo(copyLoginInfo);
   };
-
-  // const authInfo = useSelector((state) => state.auth.authInfo);
-  // const dispatch = useDispatch();
-
-  // const getDetails = async () => {
-  //   try {
-  //     const response = await axiosPrivate.get("/user/profile");
-  //     const user = response.data.user;
-
-  //     dispatch(
-  //       setAuthInfo({
-  //         fullname: user.fullname,
-  //         email: user.email,
-  //         userId: user._id,
-  //         phone: user.phone,
-  //         address: user.address,
-  //         role: user.role,
-  //       })
-  //     );
-  //   } catch (error) {
-  //     console.error("Failed to fetch user", error);
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,10 +41,6 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   if (loginInfo) getDetails();
-  // }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">

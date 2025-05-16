@@ -1,8 +1,8 @@
-import axios from "axios";
 import { Eye, EyeOff, Pencil, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Country, State, City }  from 'country-state-city';
+import { Country, State, City } from "country-state-city";
+import axiosPrivate from "../axiosPrivate";
 
 const PersonalInformation = () => {
   const [isEdit, setIsEdit] = useState(false);
@@ -11,30 +11,67 @@ const PersonalInformation = () => {
   const countries = Country.getAllCountries();
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [addressObj, setAddressObj] = useState(null);
+  const [personalInfo, setPersonalInfo] = useState({
+    fullname: "",
+    phone: "",
+    street: "",
+    area: "",
+    landmark: "",
+    city: "",
+    state: "",
+    country: "",
+    pincode: "",
+  });
 
-
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-
+  const updatePersonalInfo = async (e) => {
+    e.preventDefault();
+    const { fullname, phone, area, city, state, country } = personalInfo;
+    if (!fullname && !phone && !area && !city && !state && !country) {
+      return alert("Anyone is required!");
+    }
+    try {
+      const response = await axiosPrivate.put("/user/update-personal-info", {
+        fullname: personalInfo.fullname,
+        phone: personalInfo.phone,
+        address: {
+          area: personalInfo.area,
+          city: personalInfo.city,
+          state: personalInfo.state,
+          pincode: personalInfo.pincode,
+        },
+      });
+      if (response.data.success) {
+        // window.location.reload();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    const cWiseStates = State.getAllStates().filter(stateInfo => stateInfo.countryCode === selectedCountry);
+    const cWiseStates = State.getAllStates().filter(
+      (stateInfo) => stateInfo.countryCode === personalInfo?.country
+    );
     setStates(cWiseStates);
-  }, [selectedCountry]);
-
+  }, [personalInfo?.country]);
 
   useEffect(() => {
-    const sWiseCities = City.getAllCities().filter(cityInfo => cityInfo.stateCode === selectedState && cityInfo.countryCode === selectedCountry);
+    const sWiseCities = City.getAllCities().filter(
+      (cityInfo) =>
+        cityInfo.stateCode === personalInfo?.state &&
+        cityInfo.countryCode === personalInfo?.country
+    );
     setCities(sWiseCities);
-  }, [selectedState])
+  }, [personalInfo?.state]);
 
+  useEffect(() => {
+    setAddressObj(authInfo?.address);
+    setPersonalInfo((prev) => ({ ...prev, fullname: authInfo?.fullname, phone: authInfo?.phone, street: authInfo?.address?.street, area: authInfo?.address?.area, landmark: authInfo?.address?.landmark, city: authInfo?.address?.city, state: authInfo?.address?.state, country: authInfo?.address?.country, pincode: authInfo?.address?.pincode }));
+  }, [authInfo]);
 
   return (
     <div className="md:p-10 p-5 w-full border border-gray-300 md:mt-10 md:me-10 overflow-y-auto md:h-[75vh]">
-    {/* {console.log("countries", countries[0])}
-    {console.log("states", states)}
-    {console.log("citytes", City.getAllCities())} */}
       {!isEdit ? (
         <div className="tracking-wider">
           <div className="flex items-center justify-end cursor-pointer">
@@ -50,13 +87,22 @@ const PersonalInformation = () => {
             +91 {authInfo?.phone || "xxxxxxxxxx"}
           </p>
           <p className="text-[1em] my-2" title="Address">
-            {authInfo?.address || "Your address"}
+            {addressObj
+              ? `${addressObj?.area || "Your Area"} | ${
+                  addressObj?.city || "Your City"
+                } | ${addressObj?.state || "Your State"} | ${
+                  addressObj?.country || "Your Country"
+                } | ${addressObj?.pincode || "Your Pincode"}`
+              : "Your address"}
           </p>
         </div>
       ) : (
         <>
           {/* personal info */}
-          <form className="flex flex-col gap-4 text-[0.9em]">
+          <form
+            className="flex flex-col gap-4 text-[0.9em]"
+            onSubmit={updatePersonalInfo}
+          >
             <div className="flex items-center justify-end cursor-pointer">
               <X size={18} onClick={() => setIsEdit(false)} />
             </div>
@@ -68,46 +114,91 @@ const PersonalInformation = () => {
               type="text"
               placeholder="Full Name"
               className="border p-3 md:w-[70%]"
+              value={personalInfo.fullname}
+              onChange={(e) =>
+                setPersonalInfo((prev) => ({
+                  ...prev,
+                  fullname: e.target.value,
+                }))
+              }
+              name="fullname"
             />
             <input
               type="text"
               placeholder="Phone"
               className="border p-3 md:w-[70%]"
+              value={personalInfo.phone}
+              onChange={(e) =>
+                setPersonalInfo((prev) => ({ ...prev, phone: e.target.value }))
+              }
+              name="phone"
             />
             <input
               type="text"
               placeholder="Street No./Area/LandMark"
               className="border p-3 md:w-[70%]"
+              value={personalInfo.area}
+              onChange={(e) =>
+                setPersonalInfo((prev) => ({ ...prev, area: e.target.value }))
+              }
+              name="area"
             />
             <div className="flex items-center md:w-[70%] gap-2 md:flex-row flex-col">
-              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedCity(e.target.value)} value={selectedCity}>
+              <select
+                className="border p-3 w-full tracking-wider"
+                onChange={(e) => setPersonalInfo((prev) => ({
+                  ...prev,
+                  city: e.target.value,
+                }))}
+                value={personalInfo.city}
+              >
                 <option value="">SELECT DISTRICT/CITY</option>
                 {cities?.map((city, index) => {
                   return (
-                    <option value={city.name} key={index}>{city.name.toUpperCase()}</option>
-                  )
+                    <option value={city.name} key={index}>
+                      {city.name.toUpperCase()}
+                    </option>
+                  );
                 })}
               </select>
-              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedState(e.target.value)} value={selectedState}>
+              <select
+                className="border p-3 w-full tracking-wider"
+                onChange={(e) => setPersonalInfo((prev) => ({
+                  ...prev,
+                  state: e.target.value,
+                }))}
+                value={personalInfo.state}
+              >
                 <option value="">SELECT STATE</option>
                 {states?.map((state, index) => {
                   return (
-                    <option value={state.isoCode} key={index}>{state.name.toUpperCase()}</option>
-                  )
+                    <option value={state.isoCode} key={index}>
+                      {state.name.toUpperCase()}
+                    </option>
+                  );
                 })}
               </select>
-              <select className="border p-3 w-full tracking-wider" onChange={(e) => setSelectedCountry(e.target.value)} value={selectedCountry}>
+              <select
+                className="border p-3 w-full tracking-wider"
+                onChange={(e) => setPersonalInfo((prev) => ({
+                  ...prev,
+                  country: e.target.value,
+                }))}
+                value={personalInfo.country}
+              >
                 <option value="">SELECT COUNTRY</option>
                 {countries?.map((country, index) => {
                   return (
-                    <option value={country.isoCode} key={index}>{country.name.toUpperCase()}</option>
-                  )
+                    <option value={country.isoCode} key={index}>
+                      {country.name.toUpperCase()}
+                    </option>
+                  );
                 })}
               </select>
             </div>
             <input
               type="submit"
-              value="SUBMIT"
+              value="UPDATE PERSONAL INFORMATION"
               className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
             />
           </form>
