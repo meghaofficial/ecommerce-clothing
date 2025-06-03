@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 import axiosPublic from "../../axiosPublic";
 import Loader from "../../components/Loader";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const Login = () => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [displayPass, setDisplayPass] = useState(false);
+  const [formError, setFormError] = useState({
+    email: false, password: false
+  })
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,8 +25,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = loginInfo;
-    if (!email || !password) {
-      return alert("Both email and password required!");
+    if (!email && !password) {
+      return setFormError({ email: true, password: true });
+    }
+    if (!email){
+      return setFormError(prev => ({ ...prev, email: true }));
+    }
+    if (!password){
+      return setFormError(prev => ({ ...prev, password: true }));
     }
     setIsLoading(true);
     try {
@@ -35,9 +46,11 @@ const Login = () => {
         window.location.reload();
       } else {
         setLoginInfo({ email: "", password: "" });
+        toast("Wow so easy!");
       }
     } catch (error) {
-      console.error(error);
+      showErrorToast(error.response.data.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -52,14 +65,15 @@ const Login = () => {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-[0.8em] tracking-widest mb-1">
-              USERNAME OR EMAIL ADDRESS *
+              EMAIL ADDRESS *
             </label>
             <input
               type="text"
-              className="w-full text-[0.8em] mt-1 border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+              className={`w-full text-[0.8em] mt-1 border ${formError.email ? 'border-red-600' : 'border-gray-300'} px-4 py-2 focus:outline-1`}
               value={loginInfo.email}
               onChange={handleChange}
               name="email"
+              onFocus={() => setFormError(prev => ({ ...prev, email: false }))}
             />
           </div>
 
@@ -69,10 +83,11 @@ const Login = () => {
             </label>
             <input
               type={displayPass ? "text" : "password"}
-              className="w-full text-[0.8em] mt-1 border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+              className={`w-full text-[0.8em] mt-1 border ${formError.password ? 'border-red-600' : 'border-gray-300'} px-4 py-2 focus:outline-1`}
               value={loginInfo.password}
               onChange={handleChange}
               name="password"
+              onFocus={() => setFormError(prev => ({ ...prev, password: false }))}
             />
             {displayPass ? (
               <Eye
@@ -117,6 +132,14 @@ const Login = () => {
           </div>
         </form>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="colored"
+        hideProgressBar={false}
+        pauseOnHover
+        draggable
+      />
     </div>
   );
 };

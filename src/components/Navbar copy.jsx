@@ -153,6 +153,10 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
+
+
+      {/* YAHA AAAAAA */}
       {/* for small screen */}
       <AnimatePresence>
         {menuOpen && (
@@ -209,6 +213,24 @@ export default function Navbar() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const MobileNav = ({ navItems, setMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(null);

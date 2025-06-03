@@ -35,12 +35,12 @@ const ProfilePage = () => {
     <div className="mt-16">
     <div className="flex md:flex-row flex-col">
       {/* left */}
-      <div className="p-10 md:w-1/3 w-full">
-        <div className="border border-gray-300 md:w-fit w-full">
+      <div className="p-4 md:w-[22%] w-full bg-gray-100/50 border-r border-r-gray-300 flex justify-center">
+        <div className="md:w-fit w-full flex flex-col gap-3 items-center">
           <div
             className={`${
-              currTab === 0 ? "bg-black text-white" : "border border-gray-300"
-            } flex items-center justify-between text-[0.7em] w-full ps-4 py-4 pe-2 cursor-pointer`}
+              currTab === 0 ? "bg-black text-white" : ""
+            } flex items-center justify-between text-[0.7em] ps-4 py-3 pe-2 cursor-pointer hover:bg-gray-200 hover:text-black`}
             onClick={() => {
               setCurrTab(0);
               navigate("/profile");
@@ -51,8 +51,8 @@ const ProfilePage = () => {
           </div>
           <div
             className={`${
-              currTab === 1 ? "bg-black text-white" : "border border-gray-300"
-            } flex items-center justify-between text-[0.7em] w-full ps-4 py-4 pe-2 cursor-pointer`}
+              currTab === 1 ? "bg-black text-white" : ""
+            } flex items-center justify-between text-[0.7em] w-full ps-4 py-3 pe-2 cursor-pointer hover:bg-gray-200 hover:text-black`}
             onClick={() => {
               setCurrTab(1);
               navigate("orders");
@@ -62,7 +62,7 @@ const ProfilePage = () => {
             <ChevronRight />
           </div>
           <div
-            className={`border border-gray-300 hover:bg-red-700 hover:text-white flex items-center justify-between text-[0.7em] w-full ps-4 py-4 pe-2 cursor-pointer`}
+            className={`hover:bg-gray-200 hover:text-black flex items-center justify-between text-[0.7em] w-full ps-4 py-3 pe-2 cursor-pointer`}
             onClick={handleLogout}
           >
             <span className="me-6 tracking-widest">LOGOUT</span>
@@ -70,13 +70,13 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      <div className="md:px-0 px-10 w-[60%]">
+      <div className="w-full flex p-5 h-[90vh]">
         <Outlet />
       </div>
     </div>
-    <div className="mt-10">
+    {/* <div className="">
       <Footer />
-    </div>
+    </div> */}
     </div>
   );
 };

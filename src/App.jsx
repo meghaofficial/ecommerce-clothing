@@ -23,6 +23,13 @@ import Login from "./Pages/Authentication/Login";
 import Signup from "./Pages/Authentication/Signup";
 import Loader from "./components/Loader";
 import { jwtDecode } from "jwt-decode";
+import AdminMainPage from "./Pages/Admin/AdminMainPage";
+import AboutUsers from "./Pages/Admin/users/AboutUsers";
+import AboutAccounts from "./Pages/Admin/accounts/AboutAccounts";
+import AboutOrders from "./Pages/Admin/orders/AboutOrders";
+import AboutProducts from "./Pages/Admin/products/AboutProducts";
+import CreateProduct from "./Pages/Admin/products/CreateProduct";
+import CreateCategory from "./Pages/Admin/products/CreateCategory";
 
 const PublicRoute = ({ isAuthenticated, loading }) => {
   if (loading) {
@@ -46,11 +53,14 @@ const PrivateRoute = ({ isAuthenticated, loading }) => {
   return <Outlet />;
 };
 
-const AdminProtectedRoute = ({ isAuthorized, loading }) => {
+const AdminProtectedRoute = ({ isAuthenticated, isAuthorized, loading }) => {
   if (loading) {
     return <Loader type="square" />;
   }
-  if (!isAuthorized) return <Navigate to="/" replace />;
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
+  if (isAuthenticated && !isAuthorized) return <PageNotFound />;
   return <Outlet />;
 };
 
@@ -59,6 +69,7 @@ const App = () => {
   const isLoggedIn = Boolean(authInfo);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const getDetails = async () => {
     try {
@@ -84,6 +95,7 @@ const App = () => {
     const token = localStorage.getItem("accessToken");
 
     if (token) {
+      setIsLoading(true);
       try {
         const decoded = jwtDecode(token);
 
@@ -110,46 +122,80 @@ const App = () => {
 
   useEffect(() => {
     console.log("authInfo", authInfo);
+    setIsAuthorized(authInfo?.role === 1001 ? true : false);
   }, [authInfo]);
 
   return (
     <div className="overflow-x-hidden overflow-y-auto">
-      <Navbar />
-      <ScrollToTop />
-      <Routes>
-        {/* private routes */}
-        <Route
-          element={
-            <PrivateRoute isAuthenticated={isLoggedIn} loading={isLoading} />
-          }
-        ></Route>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/products" element={<ProductPage />} />
-        <Route path="/single-product" element={<SingleProduct />} />
-        <Route
-          path="/profile"
-          element={<PrivateRoute isAuthenticated={isLoggedIn} />}
-        >
-          <Route element={<ProfilePage />}>
-            <Route index element={<PersonalInformation />} />
-            <Route path="orders" element={<Orders />} />
-          </Route>
-        </Route>
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/faqs" element={<FAQ />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="*" element={<PageNotFound />} />
-        {/* public routes */}
-        <Route
-          element={
-            <PublicRoute isAuthenticated={isLoggedIn} loading={isLoading} />
-          }
-        >
-          <Route path="/login" element={<Login />} />
-          <Route path="/sign-up" element={<Signup />} />
-        </Route>
-      </Routes>
+      {isLoading ? (
+        <div className="flex items-center justify-center">
+          <Loader type="square" />
+        </div>
+      ) : (
+        <>
+          <Navbar />
+          <ScrollToTop />
+          <Routes>
+            {/* private routes */}
+            <Route
+              element={
+                <PrivateRoute
+                  isAuthenticated={isLoggedIn}
+                  loading={isLoading}
+                />
+              }
+            ></Route>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/products" element={<ProductPage />} />
+            <Route path="/single-product" element={<SingleProduct />} />
+            <Route
+              path="/profile"
+              element={<PrivateRoute isAuthenticated={isLoggedIn} />}
+            >
+              <Route element={<ProfilePage />}>
+                <Route index element={<PersonalInformation />} />
+                <Route path="orders" element={<Orders />} />
+              </Route>
+            </Route>
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/faqs" element={<FAQ />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<PageNotFound />} />
+            {/* public routes */}
+            <Route
+              element={
+                <PublicRoute isAuthenticated={isLoggedIn} loading={isLoading} />
+              }
+            >
+              <Route path="/login" element={<Login />} />
+              <Route path="/sign-up" element={<Signup />} />
+            </Route>
+
+            {/* admin protected routes */}
+            <Route
+              element={
+                <AdminProtectedRoute
+                  isAuthorized={isAuthorized}
+                  isAuthenticated={isLoggedIn}
+                  loading={isLoading}
+                />
+              }
+            >
+              <Route path="/admin" element={<AdminMainPage />}>
+                <Route index element={<AboutUsers />} />
+                <Route path="products" element={<AboutProducts />} />
+                <Route path="products/create-product" element={<CreateProduct />} />
+                <Route path="products/update-product/:id" element={<CreateProduct />} />
+                <Route path="products/create-category" element={<CreateCategory />} />
+                <Route path="products/update-category/:id" element={<CreateCategory />} />
+                <Route path="orders" element={<AboutOrders />} />
+                <Route path="accounts" element={<AboutAccounts />} />
+              </Route>
+            </Route>
+          </Routes>
+        </>
+      )}
     </div>
   );
 };

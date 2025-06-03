@@ -1,8 +1,10 @@
-import { Eye, EyeOff, Pencil, X } from "lucide-react";
+import { Eye, EyeOff, Mail, MapPin, Pencil, Phone, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Country, State, City } from "country-state-city";
 import axiosPrivate from "../axiosPrivate";
+import { showSuccessToast } from "../utils/toast";
+import { ToastContainer } from "react-toastify";
 
 const PersonalInformation = () => {
   const [isEdit, setIsEdit] = useState(false);
@@ -42,7 +44,7 @@ const PersonalInformation = () => {
         },
       });
       if (response.data.success) {
-        // window.location.reload();
+        showSuccessToast(response.data.message);
       }
     } catch (error) {
       console.error(error);
@@ -67,194 +69,238 @@ const PersonalInformation = () => {
 
   useEffect(() => {
     setAddressObj(authInfo?.address);
-    setPersonalInfo((prev) => ({ ...prev, fullname: authInfo?.fullname, phone: authInfo?.phone, street: authInfo?.address?.street, area: authInfo?.address?.area, landmark: authInfo?.address?.landmark, city: authInfo?.address?.city, state: authInfo?.address?.state, country: authInfo?.address?.country, pincode: authInfo?.address?.pincode }));
+    setPersonalInfo((prev) => ({
+      ...prev,
+      fullname: authInfo?.fullname,
+      phone: authInfo?.phone,
+      street: authInfo?.address?.street,
+      area: authInfo?.address?.area,
+      landmark: authInfo?.address?.landmark,
+      city: authInfo?.address?.city,
+      state: authInfo?.address?.state,
+      country: authInfo?.address?.country,
+      pincode: authInfo?.address?.pincode,
+    }));
   }, [authInfo]);
 
   return (
-    <div className="md:p-10 p-5 w-full border border-gray-300 md:mt-10 md:me-10 overflow-y-auto md:h-[75vh]">
+    <div className=" w-full overflow-y-auto md:h-fit">
       {!isEdit ? (
-        <div className="tracking-wider">
-          <div className="flex items-center justify-end cursor-pointer">
-            <Pencil size={18} onClick={() => setIsEdit(true)} />
+        <div className="p-6 shadow border relative border-gray-300 flex items-center justify-between bg-white w-full">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {/* Avatar */}
+              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-700">
+                {authInfo?.fullname?.charAt(0) || "A"}
+              </div>
+              {/* Info */}
+              <div>
+                <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  {authInfo?.fullname || "Admin"}
+                </p>
+                <p className="text-sm text-gray-700 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  {authInfo?.email || "admin@admin.com"}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6 text-sm text-gray-700">
+              <div className="flex items-center gap-1">
+                <Phone className="w-4 h-4" />
+                +91 {authInfo?.phone || "xxxxxxxxxx"}
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {addressObj
+                  ? `${addressObj?.area || ""} ${
+                      addressObj?.city || ""
+                    }`.trim() || "Your address"
+                  : "Your address"}
+              </div>
+            </div>
           </div>
-          <p className="text-[1.2em]" title="Full Name">
-            {authInfo?.fullname}
-          </p>
-          <p className="text-[1em] my-2" title="Email">
-            {authInfo?.email}
-          </p>
-          <p className="text-[1em] my-2" title="Phone">
-            +91 {authInfo?.phone || "xxxxxxxxxx"}
-          </p>
-          <p className="text-[1em] my-2" title="Address">
-            {addressObj
-              ? `${addressObj?.area || "Your Area"} | ${
-                  addressObj?.city || "Your City"
-                } | ${addressObj?.state || "Your State"} | ${
-                  addressObj?.country || "Your Country"
-                } | ${addressObj?.pincode || "Your Pincode"}`
-              : "Your address"}
-          </p>
+
+          {/* Edit Icon */}
+          <Pencil
+            className="w-5 h-5 text-gray-600 cursor-pointer absolute right-6 top-6 hover:text-blue-500"
+            onClick={() => setIsEdit(true)}
+          />
         </div>
       ) : (
-        <>
-          {/* personal info */}
-          <form
-            className="flex flex-col gap-4 text-[0.9em]"
-            onSubmit={updatePersonalInfo}
-          >
-            <div className="flex items-center justify-end cursor-pointer">
-              <X size={18} onClick={() => setIsEdit(false)} />
-            </div>
-            <div className="flex w-[70%] items-center">
-              <p className="text-nowrap me-2">UPDATE PERSONAL INFORMATION</p>
-              <div className="border-b h-1 w-full"></div>
-            </div>
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="border p-3 md:w-[70%]"
-              value={personalInfo.fullname}
-              onChange={(e) =>
-                setPersonalInfo((prev) => ({
-                  ...prev,
-                  fullname: e.target.value,
-                }))
-              }
-              name="fullname"
-            />
-            <input
-              type="text"
-              placeholder="Phone"
-              className="border p-3 md:w-[70%]"
-              value={personalInfo.phone}
-              onChange={(e) =>
-                setPersonalInfo((prev) => ({ ...prev, phone: e.target.value }))
-              }
-              name="phone"
-            />
-            <input
-              type="text"
-              placeholder="Street No./Area/LandMark"
-              className="border p-3 md:w-[70%]"
-              value={personalInfo.area}
-              onChange={(e) =>
-                setPersonalInfo((prev) => ({ ...prev, area: e.target.value }))
-              }
-              name="area"
-            />
-            <div className="flex items-center md:w-[70%] gap-2 md:flex-row flex-col">
-              <select
-                className="border p-3 w-full tracking-wider"
-                onChange={(e) => setPersonalInfo((prev) => ({
-                  ...prev,
-                  city: e.target.value,
-                }))}
-                value={personalInfo.city}
-              >
-                <option value="">SELECT DISTRICT/CITY</option>
-                {cities?.map((city, index) => {
-                  return (
-                    <option value={city.name} key={index}>
+        <div>
+          <X
+            size={18}
+            className="cursor-pointer sticky top-0"
+            onClick={() => setIsEdit(false)}
+          />
+          <div className="overflow-y-auto relative max-h-[80vh] px-10 py-6 text-sm text-gray-800 scrollbar-hidden">
+            {/* Personal Info Form */}
+            <form
+              className="space-y-4 w-full mx-auto bg-white shadow p-6"
+              onSubmit={updatePersonalInfo}
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="font-semibold text-base">
+                  Update Personal Information
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  name="fullname"
+                  placeholder="Full Name"
+                  className="w-full border p-3"
+                  value={personalInfo.fullname}
+                  onChange={(e) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      fullname: e.target.value,
+                    }))
+                  }
+                />
+
+                <input
+                  type="text"
+                  name="phone"
+                  placeholder="Phone"
+                  className="w-full border p-3"
+                  value={personalInfo.phone}
+                  onChange={(e) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <input
+                type="text"
+                name="area"
+                placeholder="Street No. / Area / Landmark"
+                className="w-full border p-3"
+                value={personalInfo.area}
+                onChange={(e) =>
+                  setPersonalInfo((prev) => ({ ...prev, area: e.target.value }))
+                }
+              />
+
+              <div className="flex flex-col md:flex-row gap-3">
+                <select
+                  className="w-full border p-3"
+                  value={personalInfo.city}
+                  onChange={(e) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      city: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Select District / City</option>
+                  {cities?.map((city, index) => (
+                    <option key={index} value={city.name}>
                       {city.name.toUpperCase()}
                     </option>
-                  );
-                })}
-              </select>
-              <select
-                className="border p-3 w-full tracking-wider"
-                onChange={(e) => setPersonalInfo((prev) => ({
-                  ...prev,
-                  state: e.target.value,
-                }))}
-                value={personalInfo.state}
-              >
-                <option value="">SELECT STATE</option>
-                {states?.map((state, index) => {
-                  return (
-                    <option value={state.isoCode} key={index}>
+                  ))}
+                </select>
+
+                <select
+                  className="w-full border p-3"
+                  value={personalInfo.state}
+                  onChange={(e) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      state: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Select State</option>
+                  {states?.map((state, index) => (
+                    <option key={index} value={state.isoCode}>
                       {state.name.toUpperCase()}
                     </option>
-                  );
-                })}
-              </select>
-              <select
-                className="border p-3 w-full tracking-wider"
-                onChange={(e) => setPersonalInfo((prev) => ({
-                  ...prev,
-                  country: e.target.value,
-                }))}
-                value={personalInfo.country}
-              >
-                <option value="">SELECT COUNTRY</option>
-                {countries?.map((country, index) => {
-                  return (
-                    <option value={country.isoCode} key={index}>
+                  ))}
+                </select>
+
+                <select
+                  className="w-full border p-3"
+                  value={personalInfo.country}
+                  onChange={(e) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      country: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Select Country</option>
+                  {countries?.map((country, index) => (
+                    <option key={index} value={country.isoCode}>
                       {country.name.toUpperCase()}
                     </option>
-                  );
-                })}
-              </select>
-            </div>
-            <input
-              type="submit"
-              value="UPDATE PERSONAL INFORMATION"
-              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
-            />
-          </form>
-          {/* email */}
-          <form className="flex flex-col gap-4 mt-[70px] text-[0.9em]">
-            <div className="flex md:w-[70%] items-center">
-              <p className="text-nowrap me-2">UPDATE EMAIL</p>
-              <div className="border-b h-1 w-full"></div>
-            </div>
-            <input
-              type="email"
-              placeholder="Email"
-              className="border p-3 md:w-[70%]"
-            />
-            <input
-              type="submit"
-              value="SUBMIT"
-              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
-            />
-          </form>
-          {/* password */}
-          <form className="flex flex-col gap-4 mt-[70px] text-[0.9em]">
-            <div className="flex md:w-[70%] items-center">
-              <p className="text-nowrap me-2">UPDATE PASSWORD</p>
-              <div className="border-b h-1 w-full"></div>
-            </div>
-            <div className="relative md:w-[70%]">
+                  ))}
+                </select>
+              </div>
+
               <input
-                type={displayPwd ? "text" : "password"}
-                placeholder="Password"
-                className="border p-3 w-full"
+                type="submit"
+                value="Update Personal Information"
+                className="w-fit bg-black text-white p-3 font-medium cursor-pointer hover:bg-gray-900 transition"
               />
-              {displayPwd ? (
-                <EyeOff
-                  onClick={() => setDisplayPwd(false)}
-                  className="cursor-pointer absolute top-1/3 right-2 bg-white"
-                  size={18}
-                  style={{ strokeWidth: 1 }}
+            </form>
+
+            {/* Email Update Form */}
+            <div className="flex gap-4 mt-4">
+              <form className="space-y-4 w-full mx-auto bg-white shadow p-6">
+                <h2 className="font-semibold text-base mb-2">Update Email</h2>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full border p-3"
                 />
-              ) : (
-                <Eye
-                  onClick={() => setDisplayPwd(true)}
-                  className="cursor-pointer absolute top-1/3 right-2 bg-white"
-                  size={18}
-                  style={{ strokeWidth: 1 }}
+                <input
+                  type="submit"
+                  value="Submit"
+                  className="w-fit bg-black text-white p-3 font-medium cursor-pointer hover:bg-gray-900 transition"
                 />
-              )}
+              </form>
+
+              {/* Password Update Form */}
+              <form className="space-y-4 w-full mx-auto bg-white shadow p-6">
+                <h2 className="font-semibold text-base mb-2">
+                  Update Password
+                </h2>
+                <div className="relative">
+                  <input
+                    type={displayPwd ? "text" : "password"}
+                    placeholder="Password"
+                    className="w-full border p-3"
+                  />
+                  {displayPwd ? (
+                    <EyeOff
+                      onClick={() => setDisplayPwd(false)}
+                      className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                      size={18}
+                    />
+                  ) : (
+                    <Eye
+                      onClick={() => setDisplayPwd(true)}
+                      className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                      size={18}
+                    />
+                  )}
+                </div>
+                <input
+                  type="submit"
+                  value="Submit"
+                  className="w-fit bg-black text-white p-3 font-medium cursor-pointer hover:bg-gray-900 transition"
+                />
+              </form>
             </div>
-            <input
-              type="submit"
-              value="SUBMIT"
-              className="bg-black text-white md:w-[70%] p-3 cursor-pointer"
-            />
-          </form>
-        </>
+          </div>
+        </div>
       )}
+      <ToastContainer />
     </div>
   );
 };
