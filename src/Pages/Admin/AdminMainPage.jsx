@@ -45,7 +45,7 @@ const AdminMainPage = () => {
           <div className="md:w-fit w-full flex flex-col gap-3 items-center">
             <div
               className={`${
-                currTab === 0 || location.pathname === '/admin' ? "bg-black text-white" : ""
+                currTab === 0 && !location.pathname.includes('products') ? "bg-black text-white" : ""
               } flex items-center justify-between w-full text-[0.7em] ps-4 py-3 pe-2 cursor-pointer hover:bg-gray-200 hover:text-black`}
               onClick={() => {
                 setCurrTab(0);
@@ -59,7 +59,7 @@ const AdminMainPage = () => {
             </div>
             <div
               className={`${
-                currTab === 1 || location.pathname === '/admin/products' ? "bg-black text-white" : ""
+                currTab === 1 || location.pathname.includes('products') ? "bg-black text-white" : ""
               } flex items-center justify-between text-[0.7em] w-full ps-4 py-3 pe-2 cursor-pointer hover:bg-gray-200 hover:text-black`}
               onClick={() => {
                 setCurrTab(1);

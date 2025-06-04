@@ -1,8 +1,6 @@
 import { Eye, Image, Trash2 } from "lucide-react";
-import React, { useState } from "react";
 
-const ImageUploadBox = ({ selectedFile, setSelectedFile }) => {
-  const [previewUrl, setPreviewUrl] = useState(null);
+const ImageUploadBox = ({ selectedFile, setSelectedFile, previewUrl, setPreviewUrl }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

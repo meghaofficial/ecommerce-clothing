@@ -57,10 +57,7 @@ const AdminProtectedRoute = ({ isAuthenticated, isAuthorized, loading }) => {
   if (loading) {
     return <Loader type="square" />;
   }
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />;
-  // }
-  if (isAuthenticated && !isAuthorized) return <PageNotFound />;
+  if (!isAuthenticated || !isAuthorized) return <PageNotFound />;
   return <Outlet />;
 };
 

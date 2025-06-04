@@ -18,6 +18,7 @@ const UsersTable = ({ selectedOption }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [filteredUsers, setFilteredUsers] = useState(null);
 
   // pagination
 
@@ -110,6 +111,10 @@ const UsersTable = ({ selectedOption }) => {
     }
   };
 
+  useEffect(() => {
+        setFilteredUsers(users.slice(indices.start, indices.end));
+  }, [indices])
+
   return (
     <div className="px-6 text-[0.9em] flex flex-col justify-between">
       <div className="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md">
@@ -142,7 +147,7 @@ const UsersTable = ({ selectedOption }) => {
                   </td>
                 </tr>
               ) : (
-                users?.map((user, idx) => (
+                filteredUsers?.map((user, idx) => (
                   <tr
                     key={user?._id}
                     className={

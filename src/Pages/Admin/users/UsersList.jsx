@@ -15,10 +15,11 @@ const UsersList = ({ selectedOption }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+    const [filteredUsers, setFilteredUsers] = useState(null);
 
   // pagination
 
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 7;
 
   const prevPage = () => {
     setCurrPage((prev) => {
@@ -84,6 +85,30 @@ const UsersList = ({ selectedOption }) => {
     }
   }, [selectedOption?.label]);
 
+  // delete user
+  const handleDeleteUser = async (email) => {
+    const flag = confirm(`Are you sure you want to remove the user ${email} ?`);
+    if (!flag) return;
+    try {
+      const response = await axiosPrivate.delete("/admin/delete-user", {
+        data: { email },
+      });
+      const { data } = response;
+      if (data.success) {
+        await handleGetUsers("/admin/all-users");
+        return toastSuccess(data.message);
+      }
+      return toastError(data.message);
+    } catch (error) {
+      console.log(error);
+      showErrorToast("Something went wrong. Please try again later.");
+    }
+  };
+
+    useEffect(() => {
+          setFilteredUsers(users.slice(indices.start, indices.end));
+    }, [indices])
+
   return (
     <div className="relative">
       <div className="flex items-center flex-wrap gap-8 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 w-full px-6">
@@ -92,7 +117,7 @@ const UsersList = ({ selectedOption }) => {
             <p>Loading...</p>
           </div>
         ) : (
-          users?.slice(0, 6).map((user) => (
+          filteredUsers?.map((user) => (
             <div
               key={user._id}
               className="bg-white shadow border border-gray-300 p-4 w-[30%]"
@@ -118,6 +143,7 @@ const UsersList = ({ selectedOption }) => {
                 <button
                   className="flex cursor-pointer items-center gap-1 text-sm p-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
                   title="Delete account"
+                  onClick={() => handleDeleteUser(user?.email)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

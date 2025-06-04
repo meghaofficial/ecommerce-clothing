@@ -42,6 +42,11 @@ const CreateProduct = () => {
     discountedPrice: "",
   });
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [existingSize, setExistingSize] = useState([]);
+  const [previewMainImg, setPreviewMainImg] = useState(null);
+  const [previewSubImg1, setPreviewSubImg1] = useState(null);
+  const [previewSubImg2, setPreviewSubImg2] = useState(null);
+  const [previewSubImg3, setPreviewSubImg3] = useState(null);
 
   const handleGetContent = () => {
     const editorInstance = editorRef.current.getInstance();
@@ -129,7 +134,7 @@ const CreateProduct = () => {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 409) {
-          showErrorToast(error.response.data.message || "User already exists!");
+          showErrorToast(error.response.data.message || "Already exists!");
         } else {
           showErrorToast(error.response.data.message || "Something went wrong");
         }
@@ -235,16 +240,18 @@ const CreateProduct = () => {
     handleDiscountPrice(productInfo?.discount);
   }, [productInfo.price]);
 
-  //   getting details of category by id
+  // getting details of product by id
   const getProductDetails = async () => {
     try {
       const response = await axiosPublic.get(`/api/product/${id}`);
       if (response.data.success) {
         console.log(response.data.product);
-        const { product } = response.data.product;
-        setProductInfo(prev => ({
+        const { product } = response.data;
+        setProductInfo((prev) => ({
+          ...prev,
           title: product?.title,
           category: product?.categoryId,
+          discription: product?.description,
           tag: product?.tag,
           price: product?.original_price,
           discount: product?.discount_percent,
@@ -254,6 +261,12 @@ const CreateProduct = () => {
           categoryName: product?.categoryName,
           discountedPrice: product?.discounted_price,
         }));
+        setExistingSize(product?.size);
+        setSelectedColors(product?.color[0].split(","));
+        setPreviewMainImg(product?.imgSrc);
+        setPreviewSubImg1(product?.sub_images[0]);
+        setPreviewSubImg2(product?.sub_images[1]);
+        setPreviewSubImg3(product?.sub_images[2]);
       }
     } catch (error) {
       console.error(error);
@@ -263,6 +276,113 @@ const CreateProduct = () => {
   useEffect(() => {
     location.pathname.includes("update-product") && getProductDetails();
   }, []);
+
+  // When product data is loaded
+  useEffect(() => {
+    if (editorRef.current && productInfo?.description) {
+      editorRef.current.getInstance().setHTML(productInfo?.description);
+    }
+  }, [productInfo.description]);
+
+  // Populating category in case of update
+  useEffect(() => {
+    if (allCategories.length && productInfo?.category) {
+      const matchedCategory = allCategories.find(
+        (cat) => cat.value === productInfo?.category
+      );
+      if (matchedCategory) {
+        setSelectedCategory(matchedCategory);
+      }
+    }
+  }, [allCategories, productInfo.category]);
+
+  // Populating tag in case of update
+  useEffect(() => {
+    if (allTags?.length && productInfo?.tag) {
+      const matchedTag = allTags?.find((cat) => cat.value === productInfo?.tag);
+      if (matchedTag) {
+        setSelectedTag(matchedTag);
+      }
+    }
+  }, [allTags, productInfo.getAllTags]);
+
+  // Populating sizes in case of update
+  useEffect(() => {
+    if (sizes?.length && existingSize.length > 0) {
+      const matchedSize = sizes?.filter((size) =>
+        existingSize.includes(size.value)
+      );
+      if (matchedSize) {
+        setSelectedSizes(matchedSize);
+      }
+    }
+  }, [sizes, existingSize]);
+
+  const updateProduct = async (e) => {
+    e.preventDefault();
+    setUploadLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("imgSrc", selectedMainImg);
+      formData.append("sub_images", selectedSubImg1);
+      if (selectedSubImg2) {
+        formData.append("sub_images", selectedSubImg2);
+      }
+      if (selectedSubImg3) {
+        formData.append("sub_images", selectedSubImg3);
+      }
+      formData.append("categoryId", productInfo.category);
+      formData.append("categoryName", productInfo.categoryName);
+      formData.append("title", productInfo.title);
+      formData.append("description", productInfo.description);
+      formData.append("original_price", productInfo.price);
+      formData.append("discount_percent", productInfo.discount);
+      formData.append("stock", productInfo.stock);
+      formData.append("tag", productInfo.tag);
+      formData.append("unique_code", productInfo.uniqueCode);
+      selectedSizes.forEach((d) => formData.append("size", d.value));
+      formData.append("color", selectedColors);
+
+      const response = await axiosPrivate.put(`/product/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const data = response.data;
+
+      if (data?.success) {
+        showSuccessToast("Product updated successfully");
+        setProductInfo({
+          title: "",
+          category: "",
+          tag: "",
+          price: "",
+          discount: "",
+          uniqueCode: "",
+          stock: "",
+          description: "",
+        });
+        setSelectedMainImg(null);
+        setSelectedSubImg1(null);
+        setSelectedSubImg2(null);
+        setSelectedSubImg3(null);
+      }
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 409) {
+          showErrorToast(error.response.data.message || "Already exists!");
+        } else {
+          showErrorToast(error.response.data.message || "Something went wrong");
+        }
+      } else if (error.request) {
+        showErrorToast("No response from server");
+      } else {
+        showErrorToast("Error: " + error.message);
+      }
+    } finally {
+      setUploadLoading(false);
+    }
+  };
 
   return (
     <div className="w-full overflow-y-auto h-[88vh] urbanist bg-[#f5f5f5]">
@@ -396,7 +516,7 @@ const CreateProduct = () => {
                 Category
               </span>
               <Select
-                defaultValue={selectedCategory}
+                value={selectedCategory}
                 onChange={setSelectedCategory}
                 options={allCategories}
                 isSearchable={false}
@@ -410,7 +530,7 @@ const CreateProduct = () => {
                 Tag
               </span>
               <Select
-                defaultValue={selectedTag}
+                value={selectedTag}
                 onChange={setSelectedTag}
                 options={allTags}
                 isSearchable={false}
@@ -472,6 +592,8 @@ const CreateProduct = () => {
               <ImageUploadBox
                 selectedFile={selectedMainImg}
                 setSelectedFile={setSelectedMainImg}
+                previewUrl={previewMainImg}
+                setPreviewUrl={setPreviewMainImg}
               />
             </div>
             <div className="mt-5 flex flex-col gap-2 px-2">
@@ -482,14 +604,20 @@ const CreateProduct = () => {
                 <ImageUploadBox
                   selectedFile={selectedSubImg1}
                   setSelectedFile={setSelectedSubImg1}
+                  previewUrl={previewSubImg1}
+                  setPreviewUrl={setPreviewSubImg1}
                 />
                 <ImageUploadBox
                   selectedFile={selectedSubImg2}
                   setSelectedFile={setSelectedSubImg2}
+                  previewUrl={previewSubImg2}
+                  setPreviewUrl={setPreviewSubImg2}
                 />
                 <ImageUploadBox
                   selectedFile={selectedSubImg3}
                   setSelectedFile={setSelectedSubImg3}
+                  previewUrl={previewSubImg3}
+                  setPreviewUrl={setPreviewSubImg3}
                 />
               </div>
             </div>
@@ -507,9 +635,14 @@ const CreateProduct = () => {
         </button>
         <input
           type="submit"
-          value={`${uploadLoading ? "Loading..." : "Create"}`}
+          value={`${
+            location.pathname.includes("update-product")
+              ? `${uploadLoading ? "Loading..." : "Update"}`
+              : `${uploadLoading ? "Loading..." : "Create"}`
+          }`}
           className="cursor-pointer bg-[#2a85ff] text-white px-4 py-2 font-semibold"
-          onClick={handleAddProduct}
+          // onClick={handleAddProduct}
+          onClick={updateProduct}
         />
       </div>
       <ToastContainer />
