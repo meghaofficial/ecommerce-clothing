@@ -6,33 +6,47 @@ import lightOnMan from "../assets/light-jeans-on-man.jpg";
 import light from "../assets/light.jpg";
 import dark from "../assets/dark.jpg";
 import darkOnMan from "../assets/dark-jeans-on-man.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, MoveRight } from "lucide-react";
 import AutoSlidingImage from "../components/AutoSlidingImage";
 import Footer from "../components/Footer";
 import ProductCardWithoutHover from "../components/ProductCardWithoutHover";
-
-const originalImages = [
-  { id: 1, imgSrc: darkOnMan },
-  { id: 2, imgSrc: dark },
-  { id: 3, imgSrc: lightOnMan },
-  { id: 4, imgSrc: light },
-];
+import axiosPrivate from "../axiosPrivate";
+import axiosPublic from "../axiosPublic";
 
 const Homepage = () => {
-  const [scrollY, setScrollY] = useState(0);
+  const navigate = useNavigate();
+  const [allProducts, setAllProducts] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setScrollY(window.scrollY);
-  //   };
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const response = await axiosPublic.get("/api/all-products");
+        const data = response.data.data;
+        const sortedData = data.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+        setAllProducts(sortedData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getProducts();
+  }, []);
 
-  //   window.addEventListener("scroll", handleScroll);
-
-  //   return () => {
-  //     window.removeEventListener("scroll", handleScroll);
-  //   };
-  // }, []);
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPublic.get("/api/categories");
+        const data = response.data.data;
+        setAllCategories(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getAllCategories();
+  }, []);
 
   return (
     <div className="mt-[60px]">
@@ -48,17 +62,23 @@ const Homepage = () => {
           New In
         </p>
         <div className="md:flex hidden items-center justify-center gap-5 mt-5">
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          {allProducts?.slice(0, 4)?.map((d) => {
+            return (
+              <div key={d?._id}>
+                <ProductCard productDetails={d} />
+              </div>
+            );
+          })}
         </div>
 
         <div className="md:hidden grid sm:grid-cols-2 lg:grid-cols-1 gap-10 pb-20 mt-6">
-          <ProductCardWithoutHover />
-          <ProductCardWithoutHover />
-          <ProductCardWithoutHover />
-          <ProductCardWithoutHover />
+          {allProducts?.slice(0, 4)?.map((d) => {
+            return (
+              <div key={d?._id}>
+                <ProductCardWithoutHover productDetails={d} />
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -67,9 +87,13 @@ const Homepage = () => {
         Explore Categories
       </p>
       <div className="w-[70%] m-auto mb-10 md:flex items-center gap-4 hidden">
-        <CategoryCard imgSrc={lightOnMan} content="Men is blue" />
-        <CategoryCard imgSrc={lightOnMan} content="Men is blue" />
-        <CategoryCard imgSrc={lightOnMan} content="Men is blue" />
+        {allCategories?.slice(0, 3)?.map((d) => {
+          return (
+            <div key={d?._id}>
+              <CategoryCard imgSrc={lightOnMan} categoryDetail={d} />
+            </div>
+          );
+        })}
         {/* Explore more */}
         <div className="relative w-fit overflow-y-hidden overflow-x-hidden">
           <div className="relative w-auto h-auto">
@@ -82,9 +106,9 @@ const Homepage = () => {
             <div className="absolute inset-0 bg-white opacity-50 translate-y-0 transition-all duration-300 ease-in-out"></div>
 
             <div className="text-white absolute top-1/3 w-full flex items-center justify-end flex-col translate-y-0 transition-all duration-300 ease-in-out">
-              <Link className="bg-black px-6 py-2 my-5 text-[12px]">
+              <p className="bg-black px-6 py-2 my-5 text-[12px] cursor-pointer" onClick={() => navigate("/products")}>
                 Explore All
-              </Link>
+              </p>
             </div>
           </div>
         </div>
@@ -108,7 +132,10 @@ const Homepage = () => {
                 Man on light
               </p>
               <Link className="bg-black ps-6 pe-4 py-2 my-5 text-[16px] flex">
-                Explore <span className="ms-2"><MoveRight /></span>
+                Explore{" "}
+                <span className="ms-2">
+                  <MoveRight />
+                </span>
               </Link>
             </div>
           </div>
@@ -129,7 +156,10 @@ const Homepage = () => {
                 Man on light
               </p>
               <Link className="bg-black ps-6 pe-4 py-2 my-5 text-[16px] flex">
-                Explore <span className="ms-2"><MoveRight /></span>
+                Explore{" "}
+                <span className="ms-2">
+                  <MoveRight />
+                </span>
               </Link>
             </div>
           </div>
@@ -150,7 +180,10 @@ const Homepage = () => {
                 Man on light
               </p>
               <Link className="bg-black ps-6 pe-4 py-2 my-5 text-[16px] flex">
-                Explore <span className="ms-2"><MoveRight /></span>
+                Explore{" "}
+                <span className="ms-2">
+                  <MoveRight />
+                </span>
               </Link>
             </div>
           </div>
@@ -168,7 +201,10 @@ const Homepage = () => {
 
             <div className="text-white absolute top-1/3 w-full flex items-center justify-end flex-col translate-y-0 transition-all duration-300 ease-in-out">
               <Link className="bg-black ps-6 pe-4 py-3 my-5 text-[16px] flex">
-                Explore All <span className="ms-2"><MoveRight /></span>
+                Explore All{" "}
+                <span className="ms-2">
+                  <MoveRight />
+                </span>
               </Link>
             </div>
           </div>

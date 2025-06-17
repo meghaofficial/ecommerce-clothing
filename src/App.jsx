@@ -30,6 +30,7 @@ import AboutOrders from "./Pages/Admin/orders/AboutOrders";
 import AboutProducts from "./Pages/Admin/products/AboutProducts";
 import CreateProduct from "./Pages/Admin/products/CreateProduct";
 import CreateCategory from "./Pages/Admin/products/CreateCategory";
+import AllProductsPage from "./Pages/AllProductsPage";
 
 const PublicRoute = ({ isAuthenticated, loading }) => {
   if (loading) {
@@ -143,7 +144,8 @@ const App = () => {
               }
             ></Route>
             <Route path="/" element={<Homepage />} />
-            <Route path="/products" element={<ProductPage />} />
+            <Route path="/products" element={<AllProductsPage />} />
+            <Route path="/products/:id" element={<ProductPage />} />
             <Route path="/single-product" element={<SingleProduct />} />
             <Route
               path="/profile"

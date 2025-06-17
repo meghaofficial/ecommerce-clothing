@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosPrivate = axios.create({
-  baseURL: "http://localhost:5000/api",
+  // baseURL: "http://localhost:5000/api",
+  baseURL: "https://backend-ecommerce-clothing.onrender.com/api",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });

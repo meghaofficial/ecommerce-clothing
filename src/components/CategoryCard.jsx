@@ -1,7 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const CategoryCard = ({ imgSrc, content }) => {
+const CategoryCard = ({ imgSrc, categoryDetail }) => {
+
+  const navigate = useNavigate();
+
   return (
     <div className="relative group w-fit overflow-y-hidden overflow-x-hidden">
       <div className="relative group w-auto h-auto">
@@ -11,9 +14,9 @@ const CategoryCard = ({ imgSrc, content }) => {
         
         <div className="text-white absolute bottom-0 w-full flex items-center justify-end flex-col translate-y-[300px] group-hover:translate-y-0 transition-all duration-300 ease-in-out">
           <p className="playfair-display w-auto text-center text-[0.9rem] text-black">
-            {content}
+            {categoryDetail?.categoryName}
           </p>
-          <Link className="bg-black px-6 py-2 my-5 text-[12px]">Explore</Link>
+          <p className="bg-black cursor-pointer px-6 py-2 my-5 text-[12px]" onClick={() => navigate(`/products/${categoryDetail?._id}`)}>Explore</p>
         </div>
       </div>
     </div>

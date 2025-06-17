@@ -1,42 +1,91 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Menu, Search, ShieldUser, ShoppingCart, UserRound, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import {
+  Heart,
+  Menu,
+  Search,
+  ShieldUser,
+  ShoppingCart,
+  UserRound,
+  X,
+} from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import axiosPublic from "../axiosPublic";
 
-const navItems = [
-  {
-    label: "PRODUCTS",
-    subItems: [
-      "All",
-      "Skinny Fit",
-      "Slim Fit",
-      "Straight Fit",
-      "Tapered Fit",
-      "Relaxed Fit",
-      "Loose Fit / Baggy",
-      "Bootcut",
-      "Carpenter / Utility Jeans",
-      "Stacked Jeans",
-      "Cropped Jeans",
-    ],
-  },
-  {
-    label: "ABOUT",
-    subItems: ["Company", "Team", "Careers"],
-  },
-  {
-    label: "SUPPORT",
-    subItems: ["Contact", "FAQs", "Warranty"],
-  },
-];
+// const navItems = [
+//   {
+//     label: "PRODUCTS",
+//     subItems: [
+//       "All",
+//       "Skinny Fit",
+//       "Slim Fit",
+//       "Straight Fit",
+//       "Tapered Fit",
+//       "Relaxed Fit",
+//       "Loose Fit / Baggy",
+//       "Bootcut",
+//       "Carpenter / Utility Jeans",
+//       "Stacked Jeans",
+//       "Cropped Jeans",
+//     ],
+//   },
+//   {
+//     label: "ABOUT",
+//     subItems: ["Company", "Team", "Careers"],
+//   },
+//   {
+//     label: "SUPPORT",
+//     subItems: ["Contact", "FAQs", "Warranty"],
+//   },
+// ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [displaySearch, setDisplaySearch] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const authInfo = useSelector((state) => state.auth.authInfo);
+  const [navItems, setNavItems] = useState([
+    {
+      label: "ABOUT",
+      subItems: ["Company", "Team", "Careers"],
+    },
+    {
+      label: "SUPPORT",
+      subItems: ["Contact", "FAQs", "Warranty"],
+    },
+  ]);
+
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPublic.get("/api/categories");
+        const arr = response.data.data.map((d) => {
+          const obj = { categoryID: d?._id, name: d?.categoryName }
+          return obj;
+        });
+
+        const productsNavItem = {
+          label: "PRODUCTS",
+          subItems: arr,
+        };
+
+        setNavItems((prev) => {
+          const filtered = prev.filter((item) => item.label !== "PRODUCTS");
+          const productsNavItem = {
+            label: "PRODUCTS",
+            subItems: arr,
+          };
+          return [productsNavItem, ...filtered];
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getAllCategories();
+  }, []);
 
   return (
     <div className="bg-white text-black w-full outfit font-light fixed top-0 z-[9999] border-b border-b-gray-200">
@@ -45,7 +94,7 @@ export default function Navbar() {
           Thejeanscompany
         </Link>
         <div className="hidden md:flex gap-8 text-[13px] ">
-          {navItems.map((item, index) => (
+          {navItems?.map((item, index) => (
             <div
               key={index}
               className="relative"
@@ -59,23 +108,22 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full mt-2 bg-white text-black rounded shadow-lg py-2"
+                    className="absolute w-[15 0px] top-full mt-2 bg-white text-black rounded shadow-lg py-2"
                   >
                     {item.label === "PRODUCTS" &&
                       item.subItems.map((sub, i) => (
-                        <Link
-                          to="/products"
+                        <div
                           className="w-full"
-                          state={{ subCategory: sub }}
                           key={i}
+                          onClick={() => navigate(`/products/${sub.categoryID}`)}
                         >
                           <div
                             key={i}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
                           >
-                            {sub}
+                            {sub.name}
                           </div>
-                        </Link>
+                        </div>
                       ))}
 
                     {item.label === "SUPPORT" &&

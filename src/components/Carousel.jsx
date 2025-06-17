@@ -1,29 +1,12 @@
 import { ChevronRight } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import light from "../assets/light.jpg";
 import lightOnMan from "../assets/light-jeans-on-man.jpg";
 import dark from "../assets/dark.jpg";
 import darkOnMan from "../assets/dark-jeans-on-man.jpg";
+import axiosPublic from "../axiosPublic";
 
-const slides = [
-  {
-    id: 1,
-    leftImg: light,
-    rightImg: lightOnMan,
-    boldContent: "In Light Color",
-    withHash: "#NEW ARRIVALS",
-    shopNow: "Shop Now",
-  },
-  {
-    id: 2,
-    leftImg: dark,
-    rightImg: darkOnMan,
-    boldContent: "In Dark Color",
-    withHash: "#NEW ARRIVALS",
-    shopNow: "Shop Now",
-  },
-];
 
 export default function Carousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,6 +15,27 @@ export default function Carousel() {
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
+
+  const [heroProd, setHeroProd] = useState([]);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const response = await axiosPublic.get("/api/all-product-by-tag", {
+          params: { tag: "hero_img" },
+        });
+        const arr = [];
+        response.data.allProducts.forEach((d, index) => {
+          const obj = { id: index+1, imgSrc: d.imgSrc, subImg: d.sub_images[0], title: d?.title };
+          arr.push(obj);
+        });
+        setHeroProd(arr);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getProducts();
+  }, []);
 
   // useEffect(() => {
   //   resetTimeout();
@@ -42,11 +46,11 @@ export default function Carousel() {
   // }, [currentIndex]);
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? heroProd?.length - 1 : prev - 1));
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
+    setCurrentIndex((prev) => (prev + 1) % heroProd?.length);
   };
 
   return (
@@ -54,23 +58,23 @@ export default function Carousel() {
       <div
         className="flex transition-transform duration-700 ease-in-out"
         style={{
-          width: `${slides.length * 100}%`,
-          transform: `translateX(-${currentIndex * (100 / slides.length)}%)`,
+          width: `${heroProd?.length * 100}%`,
+          transform: `translateX(-${currentIndex * (100 / heroProd?.length)}%)`,
         }}
       >
-        {slides.map((slide, index) => {
+        {heroProd.map((slide, index) => {
           const isActive = index === currentIndex;
 
           return (
             <div
               key={slide.id}
               className="w-full flex-shrink-0 flex md:h-[90vh] relative"
-              style={{ width: `${100 / slides.length}%` }}
+              style={{ width: `${100 / heroProd?.length}%` }}
             >
               {/* left */}
               <div className="w-[30%] items-center md:flex hidden">
                 <img
-                  src={slide.leftImg}
+                  src={slide?.subImg}
                   alt="demonstration"
                   className={`w-[200px] ${
                     isActive ? "animate__animated animate__slideInLeft" : ""
@@ -89,7 +93,7 @@ export default function Carousel() {
                 >
                   <div className="border-b w-[120px]"></div>
                   <p className="text-nowrap mx-2 tracking-[5px] text-[12px]">
-                    {slide.withHash}
+                    #NEW ARRIVALS
                   </p>
                 </div>
                 <p
@@ -99,7 +103,7 @@ export default function Carousel() {
                       : ""
                   }`}
                 >
-                  {slide.boldContent}
+                  {slide?.title}
                 </p>
                 <button
                   className={`underline cursor-pointer text-[17px] font-semibold ms-2 ${
@@ -108,7 +112,7 @@ export default function Carousel() {
                       : ""
                   }`}
                 >
-                  {slide.shopNow}
+                  Shop Now
                 </button>
               </div>
 
@@ -124,7 +128,7 @@ export default function Carousel() {
                     }`}
                   >
                     <p className="text-nowrap mx-2 tracking-[5px] text-[12px]">
-                      {slide.withHash}
+                      #NEW ARRIVALS
                     </p>
                   </div>
                   <p
@@ -134,7 +138,7 @@ export default function Carousel() {
                         : ""
                     }`}
                   >
-                    {slide.boldContent}
+                    {slide.title}
                   </p>
                   <button
                     className={`underline cursor-pointer text-[17px] font-semibold ms-2 ${
@@ -143,11 +147,11 @@ export default function Carousel() {
                         : ""
                     }`}
                   >
-                    {slide.shopNow}
+                    Shop Now
                   </button>
                 </div>
                 <img
-                  src={slide.rightImg}
+                  src={slide?.imgSrc}
                   alt="man"
                   className={`w-[280px] ${
                     isActive ? "animate__animated animate__slideInRight" : ""

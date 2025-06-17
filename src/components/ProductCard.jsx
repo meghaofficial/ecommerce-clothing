@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import light from "../assets/light.jpg";
 import lightOnMan from "../assets/light-jeans-on-man.jpg";
 import dark from "../assets/dark.jpg";
@@ -6,13 +6,8 @@ import darkOnMan from "../assets/dark-jeans-on-man.jpg";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const ProductCard = () => {
-  const [images, setImages] = useState([
-    { id: 1, imgSrc: darkOnMan },
-    { id: 2, imgSrc: dark },
-    { id: 3, imgSrc: lightOnMan },
-    { id: 4, imgSrc: light },
-  ]);
+const ProductCard = ({ productDetails }) => {
+  const [images, setImages] = useState([]);
   const [currIndex, setCurrIndex] = useState(0);
 
   const nextClick = () => {
@@ -22,6 +17,16 @@ const ProductCard = () => {
   const prevClick = () => {
     setCurrIndex((prev) => (prev - 1 + images.length) % images.length);
   };
+
+  useEffect(() => {
+    const arr = [
+      { id: productDetails?._id, imgSrc: productDetails?.imgSrc },
+      { id: productDetails?._id+""+1, imgSrc: productDetails?.sub_images[0] }
+    ];
+    if (productDetails?.sub_images[1]) arr.push({ id: productDetails?._id+""+2, imgSrc: productDetails?.sub_images[1] })
+    if (productDetails?.sub_images[2]) arr.push({ id: productDetails?._id+""+3, imgSrc: productDetails?.sub_images[2] })
+    setImages(arr)
+  }, [productDetails]);
 
   return (
     <>
@@ -44,7 +49,7 @@ const ProductCard = () => {
                     src={image.imgSrc}
                     alt="man"
                     className="w-[200px]"
-                    key={image.id}
+                    key={index}
                   />
                 );
               })}
@@ -79,10 +84,10 @@ const ProductCard = () => {
         </div>
 
         <p className="text-center text-gray-600 text-[14px] mt-2 -translate-y-10 group-hover:translate-y-3.5 transition-all duration-300 ease-in-out">
-          Long Dark Blue Jeans
+          {productDetails?.title}
         </p>
         <p className="text-center font-semibold text-[14px] opacity-100 group-hover:opacity-0 -translate-y-10 group-hover:-translate-y-4 transition-all duration-300 ease-in-out">
-          Rs. 2299
+          Rs. {productDetails?.discounted_price && productDetails?.discounted_price !== "0" ? productDetails?.discounted_price : productDetails?.original_price}
         </p>
         <Link to="/single-product" className="relative text-center flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-y-10 group-hover:-translate-y-1 transition-all duration-300 ease-in-out group-hover:underline-animation">
           <span className="relative after:block after:absolute after:left-0 after:bottom-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-500 group-hover:after:w-full text-[15px]">
