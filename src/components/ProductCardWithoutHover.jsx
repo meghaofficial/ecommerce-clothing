@@ -1,19 +1,11 @@
-import React, { useState } from "react";
-import light from "../assets/light.jpg";
-import lightOnMan from "../assets/light-jeans-on-man.jpg";
-import dark from "../assets/dark.jpg";
-import darkOnMan from "../assets/dark-jeans-on-man.jpg";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const ProductCardWithoutHover = () => {
-  const [images, setImages] = useState([
-    { id: 1, imgSrc: darkOnMan },
-    { id: 2, imgSrc: dark },
-    { id: 3, imgSrc: lightOnMan },
-    { id: 4, imgSrc: light },
-  ]);
+const ProductCardWithoutHover = ({ productDetails }) => {
+  const [images, setImages] = useState([]);
   const [currIndex, setCurrIndex] = useState(0);
+  const navigate = useNavigate();
 
   const nextClick = () => {
     setCurrIndex((prev) => (prev + 1) % images.length);
@@ -23,13 +15,36 @@ const ProductCardWithoutHover = () => {
     setCurrIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  useEffect(() => {
+    const arr = [
+      { id: productDetails?._id, imgSrc: productDetails?.imgSrc },
+      {
+        id: productDetails?._id + "" + 1,
+        imgSrc: productDetails?.sub_images[0],
+      },
+    ];
+    if (productDetails?.sub_images[1])
+      arr.push({
+        id: productDetails?._id + "" + 2,
+        imgSrc: productDetails?.sub_images[1],
+      });
+    if (productDetails?.sub_images[2])
+      arr.push({
+        id: productDetails?._id + "" + 3,
+        imgSrc: productDetails?.sub_images[2],
+      });
+    setImages(arr);
+  }, [productDetails]);
+
   return (
     <>
       <div className="shadow-lg p-3 w-fit select-none">
         {/* main images */}
         <div className="relative">
-          <div className="absolute top-[150px] left-1 z-[999]"
-            onClick={prevClick}>
+          <div
+            className="absolute top-[150px] left-1 z-[999]"
+            onClick={prevClick}
+          >
             <ChevronLeft className="text-gray-400 cursor-pointer" />
           </div>
 
@@ -40,19 +55,13 @@ const ProductCardWithoutHover = () => {
             >
               {images.map((image, index) => {
                 return (
-                  <img
-                    src={image.imgSrc}
-                    alt="man"
-                    className=''
-                    key={image.id}
-                  />
+                  <img src={image.imgSrc} alt="man" className="" key={index} />
                 );
               })}
             </div>
           </div>
 
-          <div className="absolute top-[150px] right-1"
-            onClick={nextClick}>
+          <div className="absolute top-[150px] right-1" onClick={nextClick}>
             <ChevronRight className="text-gray-400 cursor-pointer" />
           </div>
         </div>
@@ -79,20 +88,25 @@ const ProductCardWithoutHover = () => {
         </div>
 
         <p className="text-center text-gray-600 text-[14px] mt-2">
-          Long Dark Blue Jeans
+          {productDetails?.title}
         </p>
         <p className="text-center font-semibold text-[18px]">
-          Rs. 2299
+          {" "}
+          Rs.{" "}
+          {productDetails?.discounted_price &&
+          productDetails?.discounted_price !== "0"
+            ? productDetails?.discounted_price
+            : productDetails?.original_price}
         </p>
-        <Link to="/single-product" className="relative text-center flex items-center justify-center underline font-semibold">
-          <span className="relative text-[13px]">
-            SELECT OPTIONS
-          </span>
-        </Link>
+        <p
+          onClick={() => navigate(`/products/${productDetails?._id}`)}
+          className="relative text-center flex items-center justify-center underline font-semibold cursor-pointer"
+        >
+          <span className="relative text-[13px]">SELECT OPTIONS</span>
+        </p>
       </div>
     </>
   );
 };
 
-
-export default ProductCardWithoutHover
+export default ProductCardWithoutHover;

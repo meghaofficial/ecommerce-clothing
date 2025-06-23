@@ -16,7 +16,7 @@ const CategoryCard = ({ imgSrc, categoryDetail }) => {
           <p className="playfair-display w-auto text-center text-[0.9rem] text-black">
             {categoryDetail?.categoryName}
           </p>
-          <p className="bg-black cursor-pointer px-6 py-2 my-5 text-[12px]" onClick={() => navigate(`/products/${categoryDetail?._id}`)}>Explore</p>
+          <p className="bg-black cursor-pointer px-6 py-2 my-5 text-[12px]" onClick={() => navigate(`/categories/${categoryDetail?._id}`)}>Explore</p>
         </div>
       </div>
     </div>

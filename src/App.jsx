@@ -145,8 +145,8 @@ const App = () => {
             ></Route>
             <Route path="/" element={<Homepage />} />
             <Route path="/products" element={<AllProductsPage />} />
-            <Route path="/products/:id" element={<ProductPage />} />
-            <Route path="/single-product" element={<SingleProduct />} />
+            <Route path="/categories/:id" element={<ProductPage />} />
+            <Route path="/products/:id" element={<SingleProduct />} />
             <Route
               path="/profile"
               element={<PrivateRoute isAuthenticated={isLoggedIn} />}

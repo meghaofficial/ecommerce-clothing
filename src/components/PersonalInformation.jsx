@@ -5,6 +5,7 @@ import { Country, State, City } from "country-state-city";
 import axiosPrivate from "../axiosPrivate";
 import { showSuccessToast } from "../utils/toast";
 import { ToastContainer } from "react-toastify";
+import PersonalInfoMobileView from "./PersonalInfoMobileView";
 
 const PersonalInformation = () => {
   const [isEdit, setIsEdit] = useState(false);
@@ -86,6 +87,7 @@ const PersonalInformation = () => {
   return (
     <div className=" w-full overflow-y-auto md:h-fit">
       {!isEdit ? (
+        <>
         <div className="p-6 shadow border relative border-gray-300 flex items-center justify-between bg-white w-full">
           <div className="flex flex-col">
             <div className="flex items-center gap-4">
@@ -122,12 +124,15 @@ const PersonalInformation = () => {
 
           {/* Edit Icon */}
           <Pencil
-            className="w-5 h-5 text-gray-600 cursor-pointer absolute right-6 top-6 hover:text-blue-500"
+            className="w-5 h-5 text-gray-600 cursor-pointer md:block hidden absolute right-6 top-6 hover:text-blue-500"
             onClick={() => setIsEdit(true)}
           />
         </div>
+        {/* for mobile */}
+        <PersonalInfoMobileView/>
+        </>
       ) : (
-        <div>
+        <div className="md:block hidden">
           <X
             size={18}
             className="cursor-pointer sticky top-0"

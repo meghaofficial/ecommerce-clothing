@@ -35,7 +35,7 @@ const ProfilePage = () => {
     <div className="mt-16">
     <div className="flex md:flex-row flex-col">
       {/* left */}
-      <div className="p-4 md:w-[22%] w-full bg-gray-100/50 border-r border-r-gray-300 flex justify-center">
+      <div className="p-4 md:w-[22%] w-full bg-gray-100/50 border-r border-r-gray-300 md:flex hidden justify-center">
         <div className="md:w-fit w-full flex flex-col gap-3 items-center">
           <div
             className={`${
@@ -70,7 +70,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      <div className="w-full flex p-5 h-[90vh]">
+      <div className="w-full flex p-5 md:h-[90vh] overflow-auto scrollbar-hidden">
         <Outlet />
       </div>
     </div>

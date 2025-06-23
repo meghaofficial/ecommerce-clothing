@@ -1,5 +1,5 @@
 import { Eye, EyeClosed } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axiosPublic from "../../axiosPublic";
 import Loader from "../../components/Loader";
 import { Link, useNavigate } from "react-router-dom";

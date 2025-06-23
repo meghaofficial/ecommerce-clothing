@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
-import light from "../assets/light.jpg";
-import lightOnMan from "../assets/light-jeans-on-man.jpg";
-import dark from "../assets/dark.jpg";
-import darkOnMan from "../assets/dark-jeans-on-man.jpg";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProductCard = ({ productDetails }) => {
   const [images, setImages] = useState([]);
   const [currIndex, setCurrIndex] = useState(0);
+  const navigate = useNavigate();
 
   const nextClick = () => {
     setCurrIndex((prev) => (prev + 1) % images.length);
@@ -89,11 +86,11 @@ const ProductCard = ({ productDetails }) => {
         <p className="text-center font-semibold text-[14px] opacity-100 group-hover:opacity-0 -translate-y-10 group-hover:-translate-y-4 transition-all duration-300 ease-in-out">
           Rs. {productDetails?.discounted_price && productDetails?.discounted_price !== "0" ? productDetails?.discounted_price : productDetails?.original_price}
         </p>
-        <Link to="/single-product" className="relative text-center flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-y-10 group-hover:-translate-y-1 transition-all duration-300 ease-in-out group-hover:underline-animation">
+        <p onClick={() => navigate(`/products/${productDetails?._id}`)} className="cursor-pointer relative text-center flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-y-10 group-hover:-translate-y-1 transition-all duration-300 ease-in-out group-hover:underline-animation">
           <span className="relative after:block after:absolute after:left-0 after:bottom-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-500 group-hover:after:w-full text-[15px]">
             SELECT OPTIONS
           </span>
-        </Link>
+        </p>
       </div>
     </>
   );

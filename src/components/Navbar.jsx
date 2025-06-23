@@ -63,7 +63,7 @@ export default function Navbar() {
       try {
         const response = await axiosPublic.get("/api/categories");
         const arr = response.data.data.map((d) => {
-          const obj = { categoryID: d?._id, name: d?.categoryName }
+          const obj = { categoryID: d?._id, name: d?.categoryName };
           return obj;
         });
 
@@ -115,7 +115,9 @@ export default function Navbar() {
                         <div
                           className="w-full"
                           key={i}
-                          onClick={() => navigate(`/products/${sub.categoryID}`)}
+                          onClick={() =>
+                            navigate(`/categories/${sub.categoryID}`)
+                          }
                         >
                           <div
                             key={i}
@@ -210,7 +212,7 @@ export default function Navbar() {
             exit={{ height: 0 }}
             className="md:hidden overflow-hidden bg-white px-6"
           >
-            <MobileNav navItems={navItems} />
+            <MobileNav navItems={navItems} setMenuOpen={setMenuOpen} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -260,6 +262,7 @@ export default function Navbar() {
 
 const MobileNav = ({ navItems, setMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const navigate = useNavigate();
 
   const toggleIndex = (index) => {
     setActiveIndex((prev) => (prev === index ? null : index));
@@ -268,10 +271,13 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
   return (
     <div className="md:hidden bg-white h-[90vh]">
       <div className="flex my-3 gap-5 flex-col">
-        <Link
-          to="/profile"
+        {/* profile */}
+        <div
           className="flex items-center gap-3 cursor-pointer"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => {
+            setMenuOpen(false);
+            navigate("/profile");
+          }}
         >
           <div
             className={`${
@@ -282,49 +288,77 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
           >
             <UserRound
               style={{ strokeWidth: 2 }}
-              size={20}
+              size={15}
               className="cursor-pointer"
             />
           </div>
           <p
             className={`${
               location.pathname === "/profile" ? "font-[500]" : "font-[350]"
-            } text-[15px]`}
+            } text-[0.8em] tracking-wider`}
           >
             PROFILE
           </p>
-        </Link>
+        </div>
+        {/* wishlist */}
         <Link
           to="/wishlist"
           className="flex items-center gap-3"
           onClick={() => setMenuOpen(false)}
         >
-          <Heart
-            style={{ strokeWidth: 2 }}
-            size={20}
-            className="cursor-pointer"
-          />
-          <p className="font-[350] text-[15px]">WISHLIST</p>
+          <div
+            className={`${
+              location.pathname === "/wishlist"
+                ? "text-white bg-black p-1.5"
+                : ""
+            }`}
+          >
+            <Heart
+              style={{ strokeWidth: 2 }}
+              size={15}
+              className="cursor-pointer"
+            />
+          </div>
+          <p
+            className={`${
+              location.pathname === "/wishlist" ? "font-[500]" : "font-[350]"
+            } text-[0.8em] tracking-wider`}
+          >
+            WISHLIST
+          </p>
         </Link>
+        {/* cart */}
         <Link
           to="/cart"
           className="flex items-center gap-3"
           onClick={() => setMenuOpen(false)}
         >
-          <ShoppingCart
-            style={{ strokeWidth: 2 }}
-            size={20}
-            className="cursor-pointer"
-          />
-          <p className="font-[350] text-[15px]">CART</p>
+          <div
+            className={`${
+              location.pathname === "/cart" ? "text-white bg-black p-1.5" : ""
+            }`}
+          >
+            <ShoppingCart
+              style={{ strokeWidth: 2 }}
+              size={15}
+              className="cursor-pointer"
+            />
+          </div>
+          <p
+            className={`${
+              location.pathname === "/cart" ? "font-[500]" : "font-[350]"
+            } text-[0.8em] tracking-wider`}
+          >
+            CART
+          </p>
         </Link>
       </div>
       {navItems.map((item, index) => (
-        <div key={index} className="py-2">
+        <div key={index} className="py-1">
           {" "}
           {/* border-b border-[#D4C9BE]  */}
           <div
-            className="font-[350] text-[15px] mb-1 flex justify-between items-center cursor-pointer"
+            className="font-[350] text-[0.8em] tracking-wider mb-1 flex justify-between items-center cursor-pointer"
             onClick={() => toggleIndex(index)}
           >
             {item.label}
@@ -339,27 +373,54 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
                 transition={{ duration: 0.3 }}
                 className="ml-4 overflow-hidden"
               >
-                {item.subItems.map((sub, i) => (
-                  <div
-                    key={i}
-                    className="py-1 text-gray-600 text-md cursor-pointer hover:text-black"
-                  >
-                    {sub}
-                  </div>
-                ))}
+                {item.label === "PRODUCTS" &&
+                  item.subItems.map((sub, i) => (
+                    <div
+                      className="w-full"
+                      key={i}
+                      onClick={() => {
+                        navigate(`/categories/${sub.categoryID}`);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <div
+                        key={i}
+                        className="px-4 py-2 text-[0.9em] hover:bg-gray-100 cursor-pointer whitespace-nowrap"
+                      >
+                        {sub.name}
+                      </div>
+                    </div>
+                  ))}
+
+                {item.label === "SUPPORT" &&
+                  item.subItems.map((sub, i) => (
+                    <Link
+                      to={`/${sub.toLowerCase()}`}
+                      className="w-full"
+                      state={{ subCategory: sub }}
+                      key={i}
+                    >
+                      <div
+                        key={i}
+                        className="px-4 py-2 text-[0.9em] hover:bg-gray-100 cursor-pointer whitespace-nowrap"
+                      >
+                        {sub}
+                      </div>
+                    </Link>
+                  ))}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       ))}
       <div className="relative h-1/3">
-        <div className="absolute bottom-0 flex items-center gap-2 w-full">
+        <div className="absolute -bottom-10 flex items-center gap-2 w-full">
           <input
             type="text"
             placeholder="Search..."
-            className="border w-full p-4"
+            className="border w-full py-2 px-4 text-[0.9em]"
           />
-          <button className="bg-black text-white p-4 border">Search</button>
+          <button className="bg-black text-white  py-2 px-4 cursor-border border">Search</button>
         </div>
       </div>
     </div>

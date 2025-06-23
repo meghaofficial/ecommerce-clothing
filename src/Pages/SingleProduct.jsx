@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import light from "../assets/light.jpg";
 import lightOnMan from "../assets/light-jeans-on-man.jpg";
 import dark from "../assets/dark.jpg";
@@ -7,13 +7,30 @@ import ProductCard from "../components/ProductCard";
 import ImageZoom from "react-image-zooom";
 import Footer from "../components/Footer";
 import ProductCardWithoutHover from "../components/ProductCardWithoutHover";
+import { useParams } from "react-router-dom";
+import axiosPublic from "../axiosPublic";
 
 const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [currImg, setCurrImg] = useState(light);
+  const [productDetail, setProductDetail] = useState(null);
+  const { id } = useParams();
 
-  const increaseQuantity = () => setQuantity((q) => q + 1);
+  const increaseQuantity = () => setQuantity((q) => q <= productDetail?.stock ? q + 1 : q);
   const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
+
+  useEffect(() => {
+    const getProductDetail = async () => {
+      try {
+        const response = await axiosPublic.get(`/api/product/${id}`);
+        setProductDetail(response?.data?.product);
+        setCurrImg(response.data.product.imgSrc);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getProductDetail();
+  }, []);
 
   return (
     <div className="mt-16">
@@ -65,15 +82,19 @@ const SingleProduct = () => {
         {/* Right - Product Details */}
         <div className="flex-1">
           <h1 className="text-3xl urbanist font-semibold mb-4">
-            Product Title
+            {productDetail?.title}
           </h1>
-          <p className="text-3xl text-gray-800 urbanist mb-6">Rs. 2999</p>
-          <p className="text-gray-600 mb-6">
-            Etiam cursus condimentum vulputate. Nulla nisi orci, vulputate at
-            dolor et, malesuada ultrices nisi. Ut varius ex ut purus porttitor,
-            a facilisis orci condimentum. Nullam in elit et sapien ornare
-            pellentesque at ac lorem.
+          <p className="text-3xl text-gray-800 urbanist mb-6">
+            Rs. {productDetail?.original_price}
           </p>
+          <div className="text-gray-600 mb-6">
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: productDetail?.description,
+              }}
+            ></div>
+          </div>
 
           {/* Quantity Selector + Add to Cart */}
           <div className="flex items-center mb-6 gap-4">
