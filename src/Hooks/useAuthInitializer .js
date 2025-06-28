@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
-import { setAllWishlist } from "../redux/WishlistSlice";
+import { setAllWishlist } from "../redux/wishlistSlice";
 import { setAuthInfo } from "../redux/authSlice";
 import axiosPrivate from "../axiosPrivate";
 

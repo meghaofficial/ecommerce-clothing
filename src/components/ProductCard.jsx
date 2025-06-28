@@ -5,7 +5,7 @@ import { FaRegHeart } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import axiosPrivate from "../axiosPrivate";
-import { setAllWishlist } from "../redux/WishlistSlice";
+import { setAllWishlist } from "../redux/wishlistSlice";
 
 const ProductCard = ({ productDetails }) => {
   const [images, setImages] = useState([]);
