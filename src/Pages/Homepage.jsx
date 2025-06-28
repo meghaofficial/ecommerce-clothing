@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Carousel from "../components/Carousel";
 import ProductCard from "../components/ProductCard";
 import CategoryCard from "../components/CategoryCard";
@@ -20,8 +20,11 @@ const Homepage = () => {
     productLoading: false,
     categoryLoading: false,
   });
+  const hasFetchedProd = useRef(false);
+  const hasFetchedCat = useRef(false);
 
   useEffect(() => {
+    if (hasFetchedProd.current) return;
     const getProducts = async () => {
       setIsLoading(true);
       setLoading((prev) => ({ ...prev, productLoading: true }));
@@ -40,9 +43,11 @@ const Homepage = () => {
       }
     };
     getProducts();
+    hasFetchedProd.current = true;
   }, []);
 
   useEffect(() => {
+    if (hasFetchedCat.current) return;
     const getAllCategories = async () => {
       setIsLoading(true);
       setLoading((prev) => ({ ...prev, categoryLoading: true }));
@@ -58,6 +63,7 @@ const Homepage = () => {
       }
     };
     getAllCategories();
+    hasFetchedCat.current = true;
   }, []);
 
   return (

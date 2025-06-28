@@ -8,6 +8,7 @@ export default function Carousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const timeoutRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const hasFetched = useRef(false);
 
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -16,6 +17,7 @@ export default function Carousel() {
   const [heroProd, setHeroProd] = useState([]);
 
   useEffect(() => {
+    if (hasFetched.current) return;
     const getProducts = async () => {
       try {
         setIsLoading(true);
@@ -40,6 +42,7 @@ export default function Carousel() {
       }
     };
     getProducts();
+    hasFetched.current = true;
   }, []);
 
   // useEffect(() => {

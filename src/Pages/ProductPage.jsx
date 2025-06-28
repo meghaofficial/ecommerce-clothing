@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
@@ -10,15 +10,19 @@ const ProductPage = () => {
   const location = useLocation();
   const { id } = useParams();
   const [prodByCat, setProdByCat] = useState([]);
+  const [filteredProd, setFilteredProd] = useState([]);
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState({
     categoryLoading: false,
     productLoading: false,
   });
   const [filterValue, setFilterValue] = useState("");
+  const hasFetched = useRef(false);
+  const hasFetchedProd = useRef(false);
 
   //   get category details
   useEffect(() => {
+    if (hasFetched.current) return;
     const getCategoryDetails = async () => {
       setLoading((prev) => ({ ...prev, categoryLoading: true }));
       try {
@@ -31,28 +35,32 @@ const ProductPage = () => {
       }
     };
     getCategoryDetails();
-  }, [location.pathname]);
-
-  //   get products by category
-  const getAllProductsByCategory = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, productLoading: true }));
-      const response = await axiosPublic.get(`/api/all-products/${id}`);
-      setProdByCat(response.data.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading((prev) => ({ ...prev, productLoading: false }));
-    }
-  };
+    hasFetched.current = true;
+  }, [id]);
 
   useEffect(() => {
+    if (hasFetchedProd.current) return;
+    const getAllProductsByCategory = async () => {
+      try {
+        setLoading((prev) => ({ ...prev, productLoading: true }));
+        const response = await axiosPublic.get(`/api/all-products/${id}`);
+        setProdByCat(response.data.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading((prev) => ({ ...prev, productLoading: false }));
+      }
+    };
     getAllProductsByCategory();
+    hasFetchedProd.current = true;
   }, [id]);
 
   // filter
   useEffect(() => {
-    if (!filterValue) getAllProductsByCategory();
+    if (!filterValue) {
+      setFilteredProd(prodByCat);
+      return;
+    }
     if (prodByCat.length === 0) return;
 
     let sortedProducts = [...prodByCat];
@@ -62,19 +70,23 @@ const ProductPage = () => {
         sortedProducts.sort(
           (a, b) => Number(a.original_price) - Number(b.original_price)
         );
+        setFilteredProd(sortedProducts);
         break;
       case "htol":
         sortedProducts.sort(
           (a, b) => Number(b.original_price) - Number(a.original_price)
         );
+        setFilteredProd(sortedProducts);
         break;
       default:
-        getAllProductsByCategory(); 
+        setFilteredProd(prodByCat);
         return;
     }
-
-    getAllProductsByCategory(sortedProducts);
   }, [filterValue]);
+
+  useEffect(() => {
+    setFilteredProd(prodByCat);
+  }, [prodByCat]);
 
   return (
     <div className="mt-16">
@@ -90,7 +102,11 @@ const ProductPage = () => {
       <div className="border-b border-gray-300 w-[90%] h-[10px] m-auto"></div>
       <div className="flex gap-5 items-center md:justify-end justify-center px-15 mt-10">
         {!loading.productLoading && prodByCat?.length > 0 && (
-          <select className="text-[0.8em] md:w-[10%] border rounded border-gray-500" onChange={(e) => setFilterValue(e.target.value)} value={filterValue}>
+          <select
+            className="text-[0.8em] md:w-[10%] border rounded border-gray-500"
+            onChange={(e) => setFilterValue(e.target.value)}
+            value={filterValue}
+          >
             <option value="default">DEFAULT SORTING</option>
             <option value="ltoh">SORT BY PRICE: LOW TO HIGH</option>
             <option value="htol">SORT BY PRICE: HIGH TO LOW</option>
@@ -108,8 +124,8 @@ const ProductPage = () => {
           })
         ) : (
           <>
-            {prodByCat?.length > 0 ? (
-              prodByCat?.map((prod, index) => (
+            {filteredProd?.length > 0 ? (
+              filteredProd?.map((prod, index) => (
                 <ProductCardWithoutHover key={index} productDetails={prod} />
               ))
             ) : (

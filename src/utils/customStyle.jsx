@@ -9,6 +9,7 @@ export const customStyles = {
     borderRadius: '0px',
     padding: '2px 4px',
     minHeight: '40px',
+    fontSize: '0.9em',
     '&:hover': {
       borderColor: 'transparent', // gray-500
     },
@@ -23,6 +24,7 @@ export const customStyles = {
     color: state.isSelected ? 'black' : '#111827', // white text for selected
     padding: '10px 12px',
     cursor: 'pointer',
+    fontSize: '0.9em'
   }),
   menu: (provided) => ({
     ...provided,

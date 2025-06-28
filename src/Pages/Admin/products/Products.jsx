@@ -5,6 +5,7 @@ import {
   Funnel,
   MoveDown,
   MoveUp,
+  Pencil,
   Plus,
   Trash2,
   X,
@@ -268,19 +269,18 @@ const Products = () => {
 
   return (
     <div className="bg-[#f5f5f5] p-4 urbanist text-[0.9em]">
-      {/* {console.log("allpro", allProducts)} */}
       <div className="bg-white p-4">
         {/* header, export and add product */}
-        <div className="flex items-center justify-between">
+        <div className="flex md:flex-row flex-col md:items-center justify-between">
           <h1 className="font-bold text-[1.4em]">Products List</h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:mt-0 mt-3">
             <ExportButton data={allProducts} fileName="products.xlsx" />
             <div
               className="flex items-center cursor-pointer bg-[#2a85ff] px-4 py-2 text-white"
               onClick={() => navigate("/admin/products/create-product")}
             >
               <Plus size={18} />
-              <span className="font-semibold">Add Product</span>
+              <span className="font-semibold text-[0.9em]">Add Product</span>
             </div>
           </div>
         </div>
@@ -288,16 +288,16 @@ const Products = () => {
         <div className="flex items-center gap-3 mt-4">
           <input
             type="text"
-            className="bg-[#f5f5f5] outline-none px-4 py-2 w-[90%]"
+            className="bg-[#f5f5f5] outline-none px-4 py-2 md:w-[90%] w-[70%] text-[0.9em]"
             placeholder="Search"
             onChange={handleSearch}
           />
           <div
-            className="flex items-center justify-center gap-1 cursor-pointer border border-gray-300 px-4 py-2 text-gray-600 w-[10%]"
+            className="flex items-center justify-center gap-1 cursor-pointer border border-gray-300 px-4 py-2 text-gray-600 md:w-[10%] w-[30%]"
             onClick={toggleSidebar}
           >
             <Funnel size={18} />
-            <span className="font-semibold">Filter</span>
+            <span className="font-semibold text-[0.9em]">Filter</span>
           </div>
         </div>
 
@@ -336,12 +336,9 @@ const Products = () => {
           </div>
         </div>
 
-        {/* table */}
-        <div className="pt-6 px-1">
+        {/* table - for lg screen */}
+        <div className="pt-6 px-1 md:block hidden">
           <div className="grid grid-cols-12 gap-4 text-gray-500 font-semibold border-b border-b-gray-300 pb-2">
-            {/* <div className="col-span-1">
-              <input type="checkbox" />
-            </div> */}
             <div className="col-span-3 flex items-center justify-center">
               <span className="me-3">Product</span>
               <div className="flex">
@@ -406,9 +403,6 @@ const Products = () => {
                 key={product?._id}
                 className="grid grid-cols-12 gap-4 items-center py-4 border-b border-b-gray-300"
               >
-                {/* <div className="col-span-1">
-                <input type="checkbox" />
-              </div> */}
                 <div className="col-span-3 gap-4 flex items-center ps-5">
                   <img
                     src={product?.imgSrc}
@@ -454,6 +448,107 @@ const Products = () => {
                 </div>
               </div>
             ))
+          )}
+        </div>
+
+        {/* cards - for sm screen */}
+        <div className="md:hidden mt-6">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-6 px-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div className="bg-white border border-gray-200 shadow p-4 w-full md:w-[30%] animate-pulse" key={index}>
+                  {/* Image placeholder */}
+                  <div className="w-full h-[180px] bg-gray-300 mb-3"></div>
+
+                  {/* Title placeholder */}
+                  <div className="h-[20px] w-[70%] bg-gray-300 mb-2"></div>
+
+                  {/* ID placeholder */}
+                  <div className="h-[12px] w-[60%] bg-gray-200 mb-4"></div>
+
+                  {/* Info placeholders */}
+                  <div className="space-y-2 mb-4">
+                    <div className="h-[14px] w-[50%] bg-gray-300"></div>
+                    <div className="h-[14px] w-[40%] bg-gray-300"></div>
+                    <div className="h-[14px] w-[45%] bg-gray-300"></div>
+                    <div className="h-[14px] w-[35%] bg-gray-300"></div>
+                  </div>
+
+                  {/* Button placeholders */}
+                  <div className="flex gap-2">
+                    <div className="w-[70px] h-[32px] bg-gray-200"></div>
+                    <div className="w-[70px] h-[32px] bg-gray-200"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-4">
+              {filteredProducts?.map((product) => (
+                <div
+                  className="bg-white border border-gray-200 shadow p-4 w-full"
+                  key={product?._id}
+                >
+                  {/* Product Image */}
+                  <div className="w-full h-[180px] mb-3 overflow-hidden bg-gray-100 flex items-center justify-center">
+                    <img
+                      src={product?.imgSrc}
+                      alt={product?.title}
+                      className="object-contain h-full w-full"
+                    />
+                  </div>
+
+                  {/* Product Title */}
+                  <h3 className="text-lg font-semibold text-gray-800 truncate mb-1">
+                    {product?.title}
+                  </h3>
+
+                  {/* Product ID */}
+                  <p className="text-xs text-gray-500 mb-2">
+                    ID: {product?.unique_code}
+                  </p>
+
+                  {/* Price, Stock, Sales, Views */}
+                  <div className="text-sm text-gray-700 mb-3 space-y-1">
+                    <p>
+                      Price: ₹
+                      {product.discounted_price || product.original_price}
+                    </p>
+                    <p>Stock: {product.stock}</p>
+                    <p>Sales: {product.sell_no || 0}</p>
+                    {/* <p>Views: {product.views || 0}</p> */}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      className="flex text-[0.9em] items-center gap-1 text-sm px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                      onClick={() => {
+                        setActiveProduct(product);
+                        setDisplayDetails(true);
+                      }}
+                    >
+                      <Eye size={13} />
+                      View
+                    </button>
+                    <button
+                      className="flex text-[0.9em] items-center gap-1 text-sm px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                      onClick={() => navigate(`update-product/${product?._id}`)}
+                    >
+                      <Pencil size={13} />
+                      Edit
+                    </button>
+                    <button
+                      className="flex text-[0.9em] items-center gap-1 text-sm px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                      onClick={() => deleteProduct(product?._id)}
+                    >
+                      <Trash2 size={13} />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 

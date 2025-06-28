@@ -3,7 +3,6 @@ import { useLocation, useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
 import axiosPublic from "../axiosPublic";
-import { numHighToLow, numLowToHigh } from "../utils/filterFunctions";
 import { AnimatePresence, motion } from "framer-motion";
 import ProductCardWithoutHover from "../components/ProductCardWithoutHover";
 
@@ -172,7 +171,7 @@ const AllProductsPage = () => {
             FILTERS
           </button>
         </div>
-        {/* for lg screen - all categories (side bar overlay) */}
+        {/* for sm screen - all categories (side bar overlay) */}
         <AnimatePresence>
           {isOpen && (
             <>

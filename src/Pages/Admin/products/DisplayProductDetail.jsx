@@ -148,29 +148,29 @@ const DisplayDetails = ({ activeProduct, setIsOpen }) => {
             </p>
             <hr />
           </div> */}
-          <div className="p-2 text-[0.9em] flex h-[82vh] py-5 overflow-y-auto scrollbar-hidden">
+          <div className="p-2 text-[0.9em] flex md:flex-row flex-col h-[82vh] py-5 overflow-y-auto scrollbar-hidden">
             {/* images */}
-            <div className="flex flex-col justify-evenly w-[30%] gap-3 items-center">
+            <div className="flex md:flex-col justify-evenly md:w-[30%] w-full gap-3 items-center">
               <img
                 src={activeProduct?.imgSrc}
                 alt="main"
                 className="border border-gray-300 p-2 shadow rounded w-[200px] h-auto"
               />
-              <div className="flex flex-wrap gap-3 w-full items-center justify-center mt-4">
+              <div className="flex flex-wrap gap-3 w-full items-center justify-center md:mt-4">
                 {activeProduct?.sub_images?.map((sImgs, index) => {
                   return (
                     <img
                       src={sImgs}
                       alt={sImgs}
                       key={index}
-                      className="border border-gray-300 p-2 shadow rounded w-[140px] h-auto"
+                      className="border border-gray-300 p-2 shadow rounded w-[100px] h-auto"
                     />
                   );
                 })}
               </div>
             </div>
 
-            <div className="w-[70%] flex flex-col items-center">
+            <div className="md:w-[70%] w-full flex flex-col items-center">
               <table style={tableStyle}>
                 <thead>
                   <tr>

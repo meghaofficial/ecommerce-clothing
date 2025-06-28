@@ -48,7 +48,7 @@ const CreateProduct = () => {
   const [previewSubImg2, setPreviewSubImg2] = useState(null);
   const [previewSubImg3, setPreviewSubImg3] = useState(null);
 
-  const handleGetContent = () => {
+  const handleBlur = () => {
     const editorInstance = editorRef.current.getInstance();
     const content = editorInstance.getHTML();
     setProductInfo((prev) => ({
@@ -384,8 +384,14 @@ const CreateProduct = () => {
     }
   };
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.getInstance().setHTML(productInfo.description || "");
+    }
+  }, [productInfo.description]);
+
   return (
-    <div className="w-full overflow-y-auto h-[88vh] urbanist bg-[#f5f5f5]">
+    <div className="w-full md:overflow-y-auto md:h-[88vh] urbanist bg-[#f5f5f5]">
       <h2 className="text-[1.3em] font-bold ps-5 mt-5 mb-2 pb-2">
         {location.pathname.includes("update-product") ? "Update" : "Create"}{" "}
         Product
@@ -448,14 +454,8 @@ const CreateProduct = () => {
                   ["link", "image"],
                 ]}
                 value={productInfo.description}
-                onChange={handleGetContent}
+                onBlur={handleBlur}
               />
-
-              {/* <button onClick={handleGetContent}>Get Content</button>
-              <div
-                className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: description }}
-              ></div> */}
             </div>
           </div>
 
@@ -600,7 +600,7 @@ const CreateProduct = () => {
               <span className="text-gray-500 font-semibold text-[0.9em]">
                 Choose sub product images or simply drag and drop.
               </span>
-              <div className="flex items-center gap-3 ">
+              <div className="flex items-center gap-3 md:flex-row flex-col">
                 <ImageUploadBox
                   selectedFile={selectedSubImg1}
                   setSelectedFile={setSelectedSubImg1}
@@ -625,7 +625,7 @@ const CreateProduct = () => {
         </form>
       </div>
 
-      <div className="bg-white p-3 fixed bottom-0 w-[82%] border-t border-t-gray-300 flex items-center justify-end text-[0.9em] gap-4 pe-5 z-[9999]">
+      <div className="bg-white p-3 fixed bottom-0 md:w-[82%] w-full border-t border-t-gray-300 flex items-center justify-end text-[0.9em] gap-4 pe-5 z-[9999]">
         <button
           className="flex items-center gap-2 cursor-pointer text-red-500 border-[1.5px] border-red-500 px-4 py-2 font-semibold hover:bg-red-500 hover:text-white"
           onClick={() => navigate("/admin/products/")}
@@ -640,9 +640,12 @@ const CreateProduct = () => {
               ? `${uploadLoading ? "Loading..." : "Update"}`
               : `${uploadLoading ? "Loading..." : "Create"}`
           }`}
-          className="cursor-pointer bg-[#2a85ff] text-white px-4 py-2 font-semibold"
-          // onClick={handleAddProduct}
-          onClick={location.pathname.includes("update") ? updateProduct : handleAddProduct}
+          className="cursor-pointer bg-[#2a85ff] hover:bg-blue-600 text-white px-4 py-2 font-semibold"
+          onClick={
+            location.pathname.includes("update")
+              ? updateProduct
+              : handleAddProduct
+          }
         />
       </div>
       <ToastContainer />

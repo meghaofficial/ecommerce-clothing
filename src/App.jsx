@@ -31,6 +31,9 @@ import AboutProducts from "./Pages/Admin/products/AboutProducts";
 import CreateProduct from "./Pages/Admin/products/CreateProduct";
 import CreateCategory from "./Pages/Admin/products/CreateCategory";
 import AllProductsPage from "./Pages/AllProductsPage";
+import { setAllWishlist } from "./redux/WishlistSlice";
+import { useRef } from "react";
+import { useAuthInitializer } from "./Hooks/useAuthInitializer ";
 
 const PublicRoute = ({ isAuthenticated, loading }) => {
   if (loading) {
@@ -63,65 +66,87 @@ const AdminProtectedRoute = ({ isAuthenticated, isAuthorized, loading }) => {
 };
 
 const App = () => {
-  const authInfo = useSelector((state) => state.auth.authInfo);
-  const isLoggedIn = Boolean(authInfo);
-  const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  // const authInfo = useSelector((state) => state.auth.authInfo);
+  // const isLoggedIn = Boolean(authInfo);
+  // const dispatch = useDispatch();
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [isAuthorized, setIsAuthorized] = useState(false);
+  // const hasFetched = useRef(false);
 
-  const getDetails = async () => {
-    try {
-      const response = await axiosPrivate.get("/user/profile");
-      const user = response.data.user;
+  // const getDetails = async () => {
+  //   if (hasFetched.current) return;
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await axiosPrivate.get("/user/profile");
+  //     const user = response.data.user;
 
-      dispatch(
-        setAuthInfo({
-          fullname: user.fullname,
-          email: user.email,
-          userId: user._id,
-          phone: user.phone,
-          address: user.address,
-          role: user.role,
-        })
-      );
-    } catch (error) {
-      console.error("Failed to fetch user", error);
-    }
-  };
+  //     dispatch(
+  //       setAuthInfo({
+  //         fullname: user.fullname,
+  //         email: user.email,
+  //         userId: user._id,
+  //         phone: user.phone,
+  //         address: user.address,
+  //         role: user.role,
+  //       })
+  //     );
+  //     hasFetched.current = true;
+  //   } catch (error) {
+  //     console.error("Failed to fetch user", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+  // useEffect(() => {
+  //   const token = localStorage.getItem("accessToken");
 
-    if (token) {
-      setIsLoading(true);
-      try {
-        const decoded = jwtDecode(token);
+  //   if (token) {
+  //     setIsLoading(true);
+  //     try {
+  //       const decoded = jwtDecode(token);
 
-        const currentTime = Date.now() / 1000;
+  //       const currentTime = Date.now() / 1000;
 
-        if (decoded.exp < currentTime) {
-          // Token expired
-          localStorage.removeItem("accessToken");
-          console.log("Session expired, please login again");
-          window.location.href = "/login";
-        } else {
-          // Token still valid
-          getDetails().finally(() => setIsLoading(false));
-        }
-      } catch (error) {
-        console.error("Invalid token format", error);
-        localStorage.removeItem("accessToken");
-        window.location.href = "/login";
-      }
-    } else {
-      setIsLoading(false);
-    }
-  }, [dispatch]);
+  //       if (decoded.exp < currentTime) {
+  //         // Token expired
+  //         localStorage.removeItem("accessToken");
+  //         console.log("Session expired, please login again");
+  //         window.location.href = "/login";
+  //       } else {
+  //         // Token still valid
+  //         getDetails().finally(() => setIsLoading(false));
+  //       }
+  //     } catch (error) {
+  //       console.error("Invalid token format", error);
+  //       localStorage.removeItem("accessToken");
+  //       window.location.href = "/login";
+  //     }
+  //   } else {
+  //     setIsLoading(false);
+  //   }
+  // }, [dispatch]);
 
-  useEffect(() => {
-    console.log("authInfo", authInfo);
-    setIsAuthorized(authInfo?.role === 1001 ? true : false);
-  }, [authInfo]);
+  // // getting wishlist
+  // useEffect(() => {
+  //   const getWishlist = async () => {
+  //     try {
+  //       const response = await axiosPrivate.get("/wishlist");
+  //       dispatch(setAllWishlist(response.data.wishlist));
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+  //   getWishlist();
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log("authInfo", authInfo);
+  //   setIsAuthorized(authInfo?.role === 1001 ? true : false);
+  // }, [authInfo]);
+
+  const { isLoading, isAuthorized } = useAuthInitializer();
+  const isLoggedIn = useSelector((state) => state.auth.authInfo !== null);
 
   return (
     <div className="overflow-x-hidden overflow-y-auto">
@@ -147,14 +172,9 @@ const App = () => {
             <Route path="/products" element={<AllProductsPage />} />
             <Route path="/categories/:id" element={<ProductPage />} />
             <Route path="/products/:id" element={<SingleProduct />} />
-            <Route
-              path="/profile"
-              element={<PrivateRoute isAuthenticated={isLoggedIn} />}
-            >
-              <Route element={<ProfilePage />}>
-                <Route index element={<PersonalInformation />} />
-                <Route path="orders" element={<Orders />} />
-              </Route>
+            <Route path="/profile" element={<ProfilePage />}>
+              <Route index element={<PersonalInformation />} />
+              <Route path="orders" element={<Orders />} />
             </Route>
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/cart" element={<Cart />} />
@@ -184,10 +204,22 @@ const App = () => {
               <Route path="/admin" element={<AdminMainPage />}>
                 <Route index element={<AboutUsers />} />
                 <Route path="products" element={<AboutProducts />} />
-                <Route path="products/create-product" element={<CreateProduct />} />
-                <Route path="products/update-product/:id" element={<CreateProduct />} />
-                <Route path="products/create-category" element={<CreateCategory />} />
-                <Route path="products/update-category/:id" element={<CreateCategory />} />
+                <Route
+                  path="products/create-product"
+                  element={<CreateProduct />}
+                />
+                <Route
+                  path="products/update-product/:id"
+                  element={<CreateProduct />}
+                />
+                <Route
+                  path="products/create-category"
+                  element={<CreateCategory />}
+                />
+                <Route
+                  path="products/update-category/:id"
+                  element={<CreateCategory />}
+                />
                 <Route path="orders" element={<AboutOrders />} />
                 <Route path="accounts" element={<AboutAccounts />} />
               </Route>

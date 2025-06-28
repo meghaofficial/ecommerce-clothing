@@ -61,7 +61,7 @@ const CreateUserForm = () => {
 
   return (
     <div className="flex items-start justify-center w-full">
-      <form className="space-y-5 w-1/2 bg-white border border-gray-300 shadow p-6 text-[0.9em]">
+      <form className="space-y-5 md:w-1/2 w-[90%] bg-white md:border md:border-gray-300 md:shadow p-6 text-[0.9em]">
         <div>
           <label className="block font-medium mb-1">Name</label>
           <input

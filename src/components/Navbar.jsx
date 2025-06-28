@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -13,38 +13,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosPublic from "../axiosPublic";
 
-// const navItems = [
-//   {
-//     label: "PRODUCTS",
-//     subItems: [
-//       "All",
-//       "Skinny Fit",
-//       "Slim Fit",
-//       "Straight Fit",
-//       "Tapered Fit",
-//       "Relaxed Fit",
-//       "Loose Fit / Baggy",
-//       "Bootcut",
-//       "Carpenter / Utility Jeans",
-//       "Stacked Jeans",
-//       "Cropped Jeans",
-//     ],
-//   },
-//   {
-//     label: "ABOUT",
-//     subItems: ["Company", "Team", "Careers"],
-//   },
-//   {
-//     label: "SUPPORT",
-//     subItems: ["Contact", "FAQs", "Warranty"],
-//   },
-// ];
-
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [displaySearch, setDisplaySearch] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
   const authInfo = useSelector((state) => state.auth.authInfo);
   const [navItems, setNavItems] = useState([
@@ -57,34 +29,36 @@ export default function Navbar() {
       subItems: ["Contact", "FAQs", "Warranty"],
     },
   ]);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+
     const getAllCategories = async () => {
       try {
         const response = await axiosPublic.get("/api/categories");
-        const arr = response.data.data.map((d) => {
-          const obj = { categoryID: d?._id, name: d?.categoryName };
-          return obj;
-        });
-
-        const productsNavItem = {
-          label: "PRODUCTS",
-          subItems: arr,
-        };
+        const arr = response.data.data.map((d) => ({
+          categoryID: d?._id,
+          name: d?.categoryName,
+        }));
 
         setNavItems((prev) => {
-          const filtered = prev.filter((item) => item.label !== "PRODUCTS");
+          const exists = prev.some((item) => item.label === "PRODUCTS");
+          if (exists) return prev;
+
           const productsNavItem = {
             label: "PRODUCTS",
             subItems: arr,
           };
-          return [productsNavItem, ...filtered];
+          return [productsNavItem, ...prev];
         });
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
       }
     };
+
     getAllCategories();
+    hasFetched.current = true;
   }, []);
 
   return (
@@ -212,7 +186,11 @@ export default function Navbar() {
             exit={{ height: 0 }}
             className="md:hidden overflow-hidden bg-white px-6"
           >
-            <MobileNav navItems={navItems} setMenuOpen={setMenuOpen} />
+            <MobileNav
+              navItems={navItems}
+              setMenuOpen={setMenuOpen}
+              role={authInfo?.role}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -260,7 +238,7 @@ export default function Navbar() {
   );
 }
 
-const MobileNav = ({ navItems, setMenuOpen }) => {
+const MobileNav = ({ navItems, setMenuOpen, role }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const navigate = useNavigate();
 
@@ -300,6 +278,37 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
             PROFILE
           </p>
         </div>
+        {/* profile */}
+        {role === 1001 && (
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => {
+              setMenuOpen(false);
+              navigate("/admin");
+            }}
+          >
+            <div
+              className={`${
+                location.pathname === "/admin"
+                  ? "text-white bg-black p-1.5"
+                  : ""
+              }`}
+            >
+              <ShieldUser
+                style={{ strokeWidth: 2 }}
+                size={15}
+                className="cursor-pointer"
+              />
+            </div>
+            <p
+              className={`${
+                location.pathname === "/admin" ? "font-[500]" : "font-[350]"
+              } text-[0.8em] tracking-wider`}
+            >
+              ADMIN
+            </p>
+          </div>
+        )}
         {/* wishlist */}
         <Link
           to="/wishlist"
@@ -420,7 +429,9 @@ const MobileNav = ({ navItems, setMenuOpen }) => {
             placeholder="Search..."
             className="border w-full py-2 px-4 text-[0.9em]"
           />
-          <button className="bg-black text-white  py-2 px-4 cursor-border border">Search</button>
+          <button className="bg-black text-white  py-2 px-4 cursor-border border">
+            Search
+          </button>
         </div>
       </div>
     </div>

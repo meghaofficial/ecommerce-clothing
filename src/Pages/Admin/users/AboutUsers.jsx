@@ -1,30 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { Pencil, Trash2, Eye, Ban, LayoutGrid, List } from "lucide-react";
-import Pagination from "../../../components/Pagination";
+import { useEffect, useMemo, useState } from "react";
+import { LayoutGrid, List } from "lucide-react";
 import Select from "react-select";
 import { customStyles } from "../../../utils/customStyle";
 import UsersList from "./UsersList";
 import CreateUserForm from "./CreateUserForm";
 import UsersTable from "./UsersTable";
-import axiosPrivate from "../../../axiosPrivate";
 
 const AboutUsers = () => {
   const [activeTab, setActiveTab] = useState("list");
   const [viewMode, setViewMode] = useState("list_view");
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState({
+    value: "all",
+    label: "All",
+  });
   const options = [
     { value: "all", label: "All" },
     { value: "users", label: "Users" },
     { value: "admin", label: "Admin" },
   ];
 
-  useEffect(() => {
-    setSelectedOption({ value: "all", label: "All" });
-  }, []);
+  const memoizedLabel = useMemo(
+    () => selectedOption.label,
+    [selectedOption.label]
+  );
 
   return (
-    <div className="w-full overflow-y-auto h-[88vh] urbanist">
-      <h2 className="text-[1.3em] font-semibold ps-5 mt-5 mb-2 pb-2 border-b border-b-gray-300">
+    <div className="w-full md:overflow-y-auto md:h-[88vh] urbanist">
+      <h2 className="text-[1.3em] font-semibold ps-5 mt-5 mb-2 pb-2 md:block hidden border-b border-b-gray-300">
         About Users
       </h2>
 
@@ -68,7 +70,7 @@ const AboutUsers = () => {
                   styles={customStyles}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="md:flex hidden gap-2">
                 <div
                   className={`bg-gray-100 flex items-center justify-center p-2 cursor-pointer group`}
                   onClick={() => setViewMode("list_view")}
@@ -93,16 +95,16 @@ const AboutUsers = () => {
                 </div>
               </div>
             </div>
-            {viewMode === "grid_view" ? (
-              <UsersList selectedOption={selectedOption} />
+            {viewMode === "grid_view" || window.innerWidth < 768 ? (
+              <UsersList selectedOption={memoizedLabel} />
             ) : (
-              <UsersTable selectedOption={selectedOption} />
+              <UsersTable selectedOption={memoizedLabel} />
             )}
           </>
         )}
       </div>
       {activeTab === "create" && (
-        <div className="flex  justify-center h-auto">
+        <div className="flex justify-center h-auto">
           <CreateUserForm />
         </div>
       )}

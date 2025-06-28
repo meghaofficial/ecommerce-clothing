@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { FaRegHeart } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import axiosPrivate from "../axiosPrivate";
+import { useDispatch, useSelector } from "react-redux";
+import { setAllWishlist } from "../redux/WishlistSlice";
 
 const ProductCardWithoutHover = ({ productDetails }) => {
   const [images, setImages] = useState([]);
   const [currIndex, setCurrIndex] = useState(0);
   const navigate = useNavigate();
+  const wishlist = useSelector((state) => state.allWishlist.allWishlist);
+  const dispatch = useDispatch();
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const nextClick = () => {
     setCurrIndex((prev) => (prev + 1) % images.length);
@@ -13,6 +21,30 @@ const ProductCardWithoutHover = ({ productDetails }) => {
 
   const prevClick = () => {
     setCurrIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const addToWishlist = async (productId) => {
+    try {
+      const response = await axiosPrivate.post("/wishlist", {
+        productId,
+      });
+      setIsWishlisted(true);
+      console.log(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeFromWishList = async (productId) => {
+    try {
+      const response = await axiosPrivate.delete("/wishlist", {
+        data: { productId },
+      });
+      setIsWishlisted(true);
+      dispatch(setAllWishlist(response.data.wishlist));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -36,9 +68,27 @@ const ProductCardWithoutHover = ({ productDetails }) => {
     setImages(arr);
   }, [productDetails]);
 
+  useEffect(() => {
+    wishlist.includes(productDetails._id) ? setIsWishlisted(true) : setIsWishlisted(false);
+  }, [wishlist, productDetails._id]);
+
   return (
     <>
-      <div className="shadow-lg p-3 w-fit select-none">
+      <div className="shadow-lg p-3 w-fit select-none relative">
+        {/* heart */}
+        <div className="absolute right-6 top-6 z-[999]">
+          {isWishlisted ? (
+            <FaHeart
+              className="cursor-pointer text-red-500"
+              onClick={() => removeFromWishList(productDetails._id)}
+            />
+          ) : (
+            <FaRegHeart
+              className="cursor-pointer text-gray-500"
+              onClick={() => addToWishlist(productDetails._id)}
+            />
+          )}
+        </div>
         {/* main images */}
         <div className="relative">
           <div

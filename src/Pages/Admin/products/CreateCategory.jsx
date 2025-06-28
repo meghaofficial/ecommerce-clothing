@@ -121,7 +121,7 @@ const CreateCategory = () => {
         </form>
       </div>
 
-      <div className="bg-white p-3 fixed bottom-0 w-[82%] border-t border-t-gray-300 flex items-center justify-end text-[0.9em] gap-4 pe-5 z-[9999]">
+      <div className="bg-white p-3 fixed bottom-0 md:w-[82%] w-full border-t border-t-gray-300 flex items-center justify-end text-[0.9em] gap-4 pe-5 z-[9999]">
         <button
           className="flex items-center gap-2 cursor-pointer text-red-500 border-[1.5px] border-red-500 px-4 py-2 font-semibold hover:bg-red-500 hover:text-white"
           onClick={() => navigate("/admin/products/")}

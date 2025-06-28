@@ -5,7 +5,7 @@ const Pagination = ({ totalPages, currPage, prevPage, nextPage, totalEntries, in
   return (
     <div>
       <div className="flex items-center justify-between text-[1em] mt-[10px] pt-[10px]">
-        <p>Showing {indices.start+1} - {indices.end+1} out of {totalEntries} results</p>
+        <p className="text-[0.9em]">Showing {indices.start+1} - {indices.end+1} out of {totalEntries} results</p>
         <div className="rounded-lg text-center">
           {/* <p className="text-gray-600 mb-4">Current Page: {currentPage}</p> */}
 

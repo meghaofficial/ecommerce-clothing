@@ -7,8 +7,8 @@ const AboutProducts = () => {
     const [activeTab, setActiveTab] = useState("categories");
 
   return (
-    <div className="w-full overflow-y-auto h-[88vh] urbanist">
-      <h2 className="text-[1.3em] font-semibold ps-5 mt-5 mb-2 pb-2 border-b border-b-gray-300">
+    <div className="w-full md:overflow-y-auto md:h-[88vh] urbanist">
+      <h2 className="text-[1.3em] font-semibold ps-5 mt-5 mb-2 pb-2 md:block hidden border-b border-b-gray-300">
         About Products
       </h2>
 

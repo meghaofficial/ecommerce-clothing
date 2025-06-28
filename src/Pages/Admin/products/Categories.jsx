@@ -4,6 +4,7 @@ import {
   Funnel,
   MoveDown,
   MoveUp,
+  Pencil,
   Plus,
   Trash2,
   X,
@@ -15,7 +16,12 @@ import axiosPublic from "../../../axiosPublic";
 import axiosPrivate from "../../../axiosPrivate";
 import Loader from "../../../components/Loader";
 import ExportButton from "../../../utils/ExportButton";
-import { alphabetical, numHighToLow, numLowToHigh, reverseAlphabetical } from "../../../utils/filterFunctions";
+import {
+  alphabetical,
+  numHighToLow,
+  numLowToHigh,
+  reverseAlphabetical,
+} from "../../../utils/filterFunctions";
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -182,16 +188,16 @@ const Categories = () => {
     <div className="bg-[#f5f5f5] p-4 urbanist text-[0.9em]">
       <div className="bg-white p-4">
         {/* header, export and add product */}
-        <div className="flex items-center justify-between">
+        <div className="flex md:flex-row flex-col md:items-center justify-between">
           <h1 className="font-bold text-[1.4em]">Category List</h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:mt-0 mt-3">
             <ExportButton data={allCategories} fileName="categories.xlsx" />
             <div
               className="flex items-center cursor-pointer bg-[#2a85ff] px-4 py-2 text-white"
               onClick={() => navigate("/admin/products/create-category")}
             >
               <Plus size={18} />
-              <span className="font-semibold">Add Category</span>
+              <span className="font-semibold text-[0.9em]">Add Category</span>
             </div>
           </div>
         </div>
@@ -199,17 +205,10 @@ const Categories = () => {
         <div className="flex items-center gap-3 mt-4">
           <input
             type="text"
-            className="bg-[#f5f5f5] outline-none px-4 py-2 w-[100%]"
+            className="bg-[#f5f5f5] outline-none px-4 py-2 w-[100%] text-[0.9em]"
             placeholder="Search"
             onChange={handleSearch}
           />
-          {/* <div
-            className="flex items-center justify-center gap-1 cursor-pointer border border-gray-300 px-4 py-2 text-gray-600 w-[10%]"
-            onClick={toggleSidebar}
-          >
-            <Funnel size={18} />
-            <span className="font-semibold">Filter</span>
-          </div> */}
         </div>
 
         {/* overlay filter */}
@@ -241,8 +240,8 @@ const Categories = () => {
           </div>
         </div>
 
-        {/* table */}
-        <div className="pt-6 px-1">
+        {/* table - for lg screen */}
+        <div className="pt-6 px-1 md:block hidden">
           <div className="grid grid-cols-12 gap-4 text-gray-500 font-semibold border-b border-b-gray-300 pb-2">
             <div className="col-span-3 flex justify-center items-center">
               Category ID
@@ -250,15 +249,31 @@ const Categories = () => {
             <div className="col-span-3 flex justify-center items-center">
               <span className="me-3">Category name</span>
               <div className="flex">
-                <MoveUp size={15} className="cursor-pointer" onClick={() => setFilterValue("atoz")} />
-                <MoveDown size={15} className="cursor-pointer" onClick={() => setFilterValue("ztoa")} />
+                <MoveUp
+                  size={15}
+                  className="cursor-pointer"
+                  onClick={() => setFilterValue("atoz")}
+                />
+                <MoveDown
+                  size={15}
+                  className="cursor-pointer"
+                  onClick={() => setFilterValue("ztoa")}
+                />
               </div>
             </div>
             <div className="col-span-3 flex justify-center items-center">
               <span className="me-3">No of products</span>
               <div className="flex">
-                <MoveUp size={15} className="cursor-pointer" onClick={() => setFilterValue("stockhightolow")} />
-                <MoveDown size={15} className="cursor-pointer" onClick={() => setFilterValue("stocklowtohigh")} />
+                <MoveUp
+                  size={15}
+                  className="cursor-pointer"
+                  onClick={() => setFilterValue("stockhightolow")}
+                />
+                <MoveDown
+                  size={15}
+                  className="cursor-pointer"
+                  onClick={() => setFilterValue("stocklowtohigh")}
+                />
               </div>
             </div>
             <div className="col-span-3 flex justify-center items-center">
@@ -303,6 +318,80 @@ const Categories = () => {
                 </div>
               </div>
             ))
+          )}
+        </div>
+
+        {/* card - for sm screen */}
+        <div className="md:hidden mt-4">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  className="bg-white shadow border border-gray-200 p-4 w-[90%] animate-pulse"
+                  key={index}
+                >
+                  {/* Category ID */}
+                  <div className="h-[12px] w-[60%] bg-gray-300 rounded mb-2"></div>
+
+                  {/* Category Name */}
+                  <div className="h-[20px] w-[80%] bg-gray-300 rounded mb-2"></div>
+
+                  {/* Product Count */}
+                  <div className="h-[14px] w-[40%] bg-gray-300 rounded mb-4"></div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <div className="h-[32px] w-[70px] bg-gray-200 rounded"></div>
+                    <div className="h-[32px] w-[70px] bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center flex-col w-full gap-4">
+              {filteredCategories?.map((category) => (
+              <div
+                className="bg-white shadow border border-gray-200 p-4 w-full"
+                key={category?._id}
+              >
+                <p className="text-xs text-gray-500 mb-1">
+                  ID:{" "}
+                  <span className="text-gray-700">{category.categoryId}</span>
+                </p>
+
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  {category.categoryName}
+                </h3>
+
+                <p className="text-sm text-gray-600 mb-3">
+                  Products: {category.noOfProducts || 0}
+                </p>
+
+                <div className="flex gap-2">
+                  <button
+                    className="flex items-center gap-1 px-3 py-1 text-[0.8em] cursor-pointer bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                    onClick={() =>
+                      navigate(
+                        `/admin/products/update-category/${category?._id}`
+                      )
+                    }
+                    title="Edit"
+                  >
+                    <Pencil size={13} />
+                    Edit
+                  </button>
+                  <button
+                    className="flex items-center gap-1 px-3 py-1 text-[0.8em] cursor-pointer bg-red-100 text-red-600 rounded hover:bg-red-200"
+                    onClick={() => handleDelete(category?._id)}
+                    title="Delete"
+                  >
+                    <Trash2 size={13} />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+            </div>
           )}
         </div>
 

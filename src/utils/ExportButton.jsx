@@ -34,7 +34,7 @@ const ExportButton = ({ data, fileName = "data.xlsx" }) => {
       onClick={handleExport}
     >
       <CloudDownload size={18} />
-      <span className="font-semibold">Export</span>
+      <span className="font-semibold text-[0.9em]">Export</span>
     </div>
   );
 };

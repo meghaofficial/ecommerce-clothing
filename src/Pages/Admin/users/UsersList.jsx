@@ -3,6 +3,7 @@ import Pagination from "../../../components/Pagination";
 import { Ban, Pencil, Trash2 } from "lucide-react";
 import axiosPrivate from "../../../axiosPrivate";
 import EditUserModal from "./EditUserModal";
+import { UserCardSkeleton } from "../../../components/Skeletons/UserCardSkeleton";
 
 const UsersList = ({ selectedOption }) => {
   const [totalPages, setTotalPages] = useState(0);
@@ -15,7 +16,7 @@ const UsersList = ({ selectedOption }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-    const [filteredUsers, setFilteredUsers] = useState(null);
+  const [filteredUsers, setFilteredUsers] = useState(null);
 
   // pagination
 
@@ -83,7 +84,7 @@ const UsersList = ({ selectedOption }) => {
         handleGetUsers("/admin/all-users");
         break;
     }
-  }, [selectedOption?.label]);
+  }, [selectedOption?.label]); 
 
   // delete user
   const handleDeleteUser = async (email) => {
@@ -95,7 +96,15 @@ const UsersList = ({ selectedOption }) => {
       });
       const { data } = response;
       if (data.success) {
-        await handleGetUsers("/admin/all-users");
+        // re-fetch only the current tab's data
+        if (selectedOption?.label === "Admin") {
+          await handleGetUsers("/admin/admins");
+        } else if (selectedOption?.label === "Users") {
+          await handleGetUsers("/admin/users");
+        } else {
+          await handleGetUsers("/admin/all-users");
+        }
+
         return toastSuccess(data.message);
       }
       return toastError(data.message);
@@ -105,22 +114,27 @@ const UsersList = ({ selectedOption }) => {
     }
   };
 
-    useEffect(() => {
-          setFilteredUsers(users.slice(indices.start, indices.end));
-    }, [indices])
+  useEffect(() => {
+    setFilteredUsers(users.slice(indices.start, indices.end));
+  }, [indices]);
 
   return (
-    <div className="relative">
+    <div className="relative md:pb-0 pb-16">
+    {console.log("selectedOption?.label", selectedOption?.label)}
       <div className="flex items-center flex-wrap gap-8 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 w-full px-6">
         {isLoading ? (
-          <div className="flex items-center justify-center h-[50vh] w-full">
-            <p>Loading...</p>
+          <div className="flex flex-col gap-4 items-center justify-center md:h-[50vh] h-[80vh] w-full">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="w-[90%]">
+                <UserCardSkeleton />
+              </div>
+            ))}
           </div>
         ) : (
           filteredUsers?.map((user) => (
             <div
               key={user._id}
-              className="bg-white shadow border border-gray-300 p-4 w-[30%]"
+              className="bg-white shadow border border-gray-300 p-4 md:w-[30%] w-full"
             >
               <h3 className="text-[1em] font-semibold mb-1">
                 {user?.fullname}

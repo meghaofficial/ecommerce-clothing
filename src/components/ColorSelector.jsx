@@ -6,7 +6,7 @@ export default function ColorSelector({ colors, setColors }) {
   const [manualColor, setManualColor] = useState("");
 
   const addColor = (e) => {
-      e.preventDefault();
+    e.preventDefault();
     const colorToAdd = manualColor || selectedColor;
 
     if (!/^#([0-9A-F]{3}){1,2}$/i.test(colorToAdd)) {
@@ -26,7 +26,7 @@ export default function ColorSelector({ colors, setColors }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <div className="flex gap-4 md:flex-row flex-col">
         <div>
           <p className="text-sm font-medium mb-1">Pick a color:</p>
           <div className="small-picker">
@@ -34,7 +34,8 @@ export default function ColorSelector({ colors, setColors }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        {/* for lg screen */}
+        <div className="md:flex hidden flex-col gap-2">
           <label className="text-sm font-medium">Or type color code:</label>
           <input
             type="text"
@@ -50,6 +51,26 @@ export default function ColorSelector({ colors, setColors }) {
             Add Color
           </button>
         </div>
+
+        {/* for sm screen */}
+        <div className="flex flex-col gap-2 md:hidden">
+          <label className="text-sm font-medium">Or type color code:</label>
+          <div className="flex items-center justify-between gap-3">
+            <input
+              type="text"
+              value={manualColor}
+              onChange={(e) => setManualColor(e.target.value)}
+              placeholder="#FF0000"
+              className="bg-[#f5f5f5] py-2 px-4 text-[0.8em] outline-none w-full"
+            />
+            <button
+              onClick={addColor}
+              className="bg-[#2a85ff] text-nowrap text-white px-4 py-1.5 text-[0.85em] hover:bg-blue-600 cursor-pointer"
+            >
+              Add Color
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -57,10 +78,7 @@ export default function ColorSelector({ colors, setColors }) {
         <div className="flex flex-wrap gap-4 mt-2 text-[0.8em]">
           {colors.map((color, idx) => (
             <div key={idx} className="flex items-center gap-2">
-              <div
-                className="w-5 h-5"
-                style={{ backgroundColor: color }}
-              />
+              <div className="w-5 h-5" style={{ backgroundColor: color }} />
               <span className="text-sm">{color}</span>
               <button
                 onClick={() => removeColor(color)}
@@ -70,7 +88,9 @@ export default function ColorSelector({ colors, setColors }) {
               </button>
             </div>
           ))}
-          {colors.length === 0 && <p className="text-gray-500">No colors added.</p>}
+          {colors.length === 0 && (
+            <p className="text-gray-500">No colors added.</p>
+          )}
         </div>
       </div>
     </div>
