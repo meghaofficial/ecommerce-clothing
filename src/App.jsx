@@ -31,7 +31,6 @@ import AboutProducts from "./Pages/Admin/products/AboutProducts";
 import CreateProduct from "./Pages/Admin/products/CreateProduct";
 import CreateCategory from "./Pages/Admin/products/CreateCategory";
 import AllProductsPage from "./Pages/AllProductsPage";
-import { setAllWishlist } from "./redux/WishlistSlice";
 import { useRef } from "react";
 import { useAuthInitializer } from "./Hooks/useAuthInitializer ";
 
