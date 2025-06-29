@@ -33,6 +33,8 @@ import CreateCategory from "./Pages/Admin/products/CreateCategory";
 import AllProductsPage from "./Pages/AllProductsPage";
 import { useRef } from "react";
 import { useAuthInitializer } from "./Hooks/useAuthInitializer ";
+import { setAllWishlist } from "./redux/wishlistSlice";
+import axiosPublic from "./axiosPublic";
 
 const PublicRoute = ({ isAuthenticated, loading }) => {
   if (loading) {
@@ -65,87 +67,88 @@ const AdminProtectedRoute = ({ isAuthenticated, isAuthorized, loading }) => {
 };
 
 const App = () => {
-  // const authInfo = useSelector((state) => state.auth.authInfo);
-  // const isLoggedIn = Boolean(authInfo);
-  // const dispatch = useDispatch();
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [isAuthorized, setIsAuthorized] = useState(false);
-  // const hasFetched = useRef(false);
+  const authInfo = useSelector((state) => state.auth.authInfo);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+  const hasFetchedAllProd = useRef(false);
+  const hasFetchedProfile = useRef(false);
+  const hasFetchedWishlist = useRef(false);
 
-  // const getDetails = async () => {
-  //   if (hasFetched.current) return;
-  //   try {
-  //     setIsLoading(true);
-  //     const response = await axiosPrivate.get("/user/profile");
-  //     const user = response.data.user;
+  const getDetails = async () => {
+    if (hasFetchedProfile.current) return;
+    try {
+      const response = await axiosPrivate.get("/user/profile");
+      const user = response.data.user;
 
-  //     dispatch(
-  //       setAuthInfo({
-  //         fullname: user.fullname,
-  //         email: user.email,
-  //         userId: user._id,
-  //         phone: user.phone,
-  //         address: user.address,
-  //         role: user.role,
-  //       })
-  //     );
-  //     hasFetched.current = true;
-  //   } catch (error) {
-  //     console.error("Failed to fetch user", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+      dispatch(
+        setAuthInfo({
+          fullname: user.fullname,
+          email: user.email,
+          userId: user._id,
+          phone: user.phone,
+          address: user.address,
+          profile: user.profile,
+          role: user.role,
+        })
+      );
+    } catch (error) {
+      console.error("Failed to fetch user", error);
+    }
+  };
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("accessToken");
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
 
-  //   if (token) {
-  //     setIsLoading(true);
-  //     try {
-  //       const decoded = jwtDecode(token);
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
 
-  //       const currentTime = Date.now() / 1000;
+        const currentTime = Date.now() / 1000; // in seconds
 
-  //       if (decoded.exp < currentTime) {
-  //         // Token expired
-  //         localStorage.removeItem("accessToken");
-  //         console.log("Session expired, please login again");
-  //         window.location.href = "/login";
-  //       } else {
-  //         // Token still valid
-  //         getDetails().finally(() => setIsLoading(false));
-  //       }
-  //     } catch (error) {
-  //       console.error("Invalid token format", error);
-  //       localStorage.removeItem("accessToken");
-  //       window.location.href = "/login";
-  //     }
-  //   } else {
-  //     setIsLoading(false);
-  //   }
-  // }, [dispatch]);
+        if (decoded.exp < currentTime) {
+          // Token expired
+          localStorage.removeItem("accessToken");
+          toastError("Session expired, please login again");
+          window.location.href = "/login";
+        } else {
+          // Token still valid
+          getDetails().finally(() => setIsLoading(false));
+          setIsLoggedIn(true);
+          hasFetchedProfile.current = true;
+        }
+      } catch (error) {
+        console.error("Invalid token format", error);
+        localStorage.removeItem("accessToken");
+        window.location.href = "/login";
+      }
+    } else {
+      // No token
+      setIsLoading(false); // <-- important
+    }
+  }, [dispatch]);
 
-  // // getting wishlist
-  // useEffect(() => {
-  //   const getWishlist = async () => {
-  //     try {
-  //       const response = await axiosPrivate.get("/wishlist");
-  //       dispatch(setAllWishlist(response.data.wishlist));
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   getWishlist();
-  // }, []);
+  useEffect(() => {
+    console.log("aa", authInfo);
+  }, [authInfo]);
 
-  // useEffect(() => {
-  //   console.log("authInfo", authInfo);
-  //   setIsAuthorized(authInfo?.role === 1001 ? true : false);
-  // }, [authInfo]);
+  // getting all wishlist
 
-  const { isLoading, isAuthorized } = useAuthInitializer();
-  const isLoggedIn = useSelector((state) => state.auth.authInfo !== null);
+  useEffect(() => {
+    if (authInfo?.email) {
+      if (hasFetchedWishlist.current) return;
+      const getWishlist = async () => {
+        try {
+          const response = await axiosPrivate.get("/wishlist");
+          dispatch(setAllWishlist(response.data.wishlist));
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      getWishlist();
+      hasFetchedWishlist.current = true;
+    }
+  }, [authInfo, dispatch]);
 
   return (
     <div className="overflow-x-hidden overflow-y-auto">
@@ -166,17 +169,18 @@ const App = () => {
                   loading={isLoading}
                 />
               }
-            ></Route>
+            >
+              <Route path="/profile" element={<ProfilePage />}>
+                <Route index element={<PersonalInformation />} />
+                <Route path="orders" element={<Orders />} />
+              </Route>
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/cart" element={<Cart />} />
+            </Route>
             <Route path="/" element={<Homepage />} />
             <Route path="/products" element={<AllProductsPage />} />
             <Route path="/categories/:id" element={<ProductPage />} />
             <Route path="/products/:id" element={<SingleProduct />} />
-            <Route path="/profile" element={<ProfilePage />}>
-              <Route index element={<PersonalInformation />} />
-              <Route path="orders" element={<Orders />} />
-            </Route>
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/cart" element={<Cart />} />
             <Route path="/faqs" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<PageNotFound />} />
@@ -194,7 +198,7 @@ const App = () => {
             <Route
               element={
                 <AdminProtectedRoute
-                  isAuthorized={isAuthorized}
+                  isAuthorized={authInfo?.role === 1001}
                   isAuthenticated={isLoggedIn}
                   loading={isLoading}
                 />

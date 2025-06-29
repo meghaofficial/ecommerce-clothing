@@ -29,7 +29,7 @@ const ProductCard = ({ productDetails }) => {
         productId,
       });
       setIsWishlisted(true);
-      console.log(response.data.data);
+       dispatch(setAllWishlist(response.data.wishlist.list));
     } catch (error) {
       console.error(error);
     }
@@ -69,10 +69,13 @@ const ProductCard = ({ productDetails }) => {
   }, [productDetails]);
 
   useEffect(() => {
-    wishlist.includes(productDetails._id)
+    if (wishlist){
+    wishlist.includes(productDetails?._id)
       ? setIsWishlisted(true)
       : setIsWishlisted(false);
-  }, [wishlist, productDetails._id]);
+    }
+  }, [wishlist, productDetails?._id]);
+  
 
   return (
     <>
@@ -82,12 +85,12 @@ const ProductCard = ({ productDetails }) => {
           {isWishlisted ? (
             <FaHeart
               className="cursor-pointer text-red-500"
-              onClick={() => removeFromWishList(productDetails._id)}
+              onClick={() => removeFromWishList(productDetails?._id)}
             />
           ) : (
             <FaRegHeart
               className="cursor-pointer text-gray-500"
-              onClick={() => addToWishlist(productDetails._id)}
+              onClick={() => addToWishlist(productDetails?._id)}
             />
           )}
         </div>
@@ -134,7 +137,7 @@ const ProductCard = ({ productDetails }) => {
                 className={`w-[40px] h-[40px] overflow-hidden cursor-pointer ${
                   currIndex === index ? "border" : ""
                 } `}
-                key={imageObj.id}
+                key={index}
                 onClick={() => setCurrIndex(index)}
               >
                 <img

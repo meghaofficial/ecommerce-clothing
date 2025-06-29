@@ -9,28 +9,116 @@ import Footer from "../components/Footer";
 import ProductCardWithoutHover from "../components/ProductCardWithoutHover";
 import { useParams } from "react-router-dom";
 import axiosPublic from "../axiosPublic";
+import PageNotFound from "./PageNotFound";
+import axiosPrivate from "../axiosPrivate";
+import { setAllWishlist } from "../redux/wishlistSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useRef } from "react";
+import { ProductCardSkeleton } from "../components/Skeletons/ProductCardSkeleton";
 
 const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
-  const [currImg, setCurrImg] = useState(light);
+  const [currImg, setCurrImg] = useState(null);
+  const [subImages, setSubImages] = useState([]);
   const [productDetail, setProductDetail] = useState(null);
   const { id } = useParams();
+  const [isNotFound, setIsNotFound] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const dispatch = useDispatch();
+  const [prodByCat, setProdByCat] = useState([]);
+  const hasFetchedProd = useRef(false);
+  const hasFetched = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);  
+  const wishlist = useSelector((state) => state.allWishlist.allWishlist);
 
-  const increaseQuantity = () => setQuantity((q) => q <= productDetail?.stock ? q + 1 : q);
+  const increaseQuantity = () =>
+    setQuantity((q) => (q <= productDetail?.stock ? q + 1 : q));
   const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
+  // getting product detail
   useEffect(() => {
+    if (hasFetched.current) return;
     const getProductDetail = async () => {
       try {
         const response = await axiosPublic.get(`/api/product/${id}`);
         setProductDetail(response?.data?.product);
         setCurrImg(response.data.product.imgSrc);
+        setSubImages(response?.data?.product?.sub_images);
+        setSelectedColor(response?.data?.product?.color?.[0]?.split(",")[0]);
       } catch (error) {
-        console.error(error);
+        console.error("Product fetch error:", error);
+        // Check if it's a 404 or similar
+        if (
+          error?.response?.status === 404 ||
+          error?.response?.data?.success === false
+        ) {
+          setIsNotFound(true);
+        }
       }
     };
     getProductDetail();
+    hasFetched.current = true;
   }, []);
+
+  const addToWishlist = async (productId) => {
+    try {
+      const response = await axiosPrivate.post("/wishlist", {
+        productId,
+      });
+      setIsWishlisted(true);
+      dispatch(setAllWishlist(response.data.wishlist.list));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeFromWishList = async (productId) => {
+    try {
+      const response = await axiosPrivate.delete("/wishlist", {
+        data: { productId },
+      });
+      setIsWishlisted(true);
+      dispatch(setAllWishlist(response.data.wishlist));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (productDetail?.categoryId) {
+      if (hasFetchedProd.current) return;
+      const getAllProductsByCategory = async () => {
+        try {
+          setIsLoading(true);
+          const response = await axiosPublic.get(
+            `/api/all-products/${productDetail?.categoryId}`
+          );
+          const arr = response.data.data?.filter(
+            (d) => d?._id !== productDetail?._id
+          );
+          setProdByCat(arr);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      getAllProductsByCategory();
+      hasFetchedProd.current = true;
+    }
+  }, [productDetail?.categoryId]);
+
+  useEffect(() => {
+    wishlist.includes(productDetail?._id)
+      ? setIsWishlisted(true)
+      : setIsWishlisted(false);
+  }, [wishlist, productDetail?._id]);
+
+  if (isNotFound) return <PageNotFound />;
+
+  if (!productDetail) return <div>Loading...</div>;
 
   return (
     <div className="mt-16">
@@ -40,37 +128,24 @@ const SingleProduct = () => {
           {/* sub images */}
           <div className="flex md:flex-col flex-row items-center md:justify-center md:gap-2 me-2 justify-evenly md:w-auto w-full md:mt-0 mt-4">
             <img
-              src={light}
+              src={productDetail?.imgSrc}
               alt="{darkOnMan}"
-              className={`h-[100px] ${currImg === light ? "border" : ""}`}
-              onClick={() => setCurrImg(light)}
+              className={`h-[100px] ${
+                currImg === productDetail?.imgSrc ? "border" : ""
+              }`}
+              onClick={() => setCurrImg(productDetail?.imgSrc)}
             />
-            <img
-              src={lightOnMan}
-              alt="{lightOnMan}"
-              className={`h-[100px] ${currImg === lightOnMan ? "border" : ""}`}
-              onClick={() => setCurrImg(lightOnMan)}
-            />
-            <img
-              src={dark}
-              alt="{dark}"
-              className={`h-[100px] ${currImg === dark ? "border" : ""}`}
-              onClick={() => setCurrImg(dark)}
-            />
-            <img
-              src={darkOnMan}
-              alt="{darkOnMan}"
-              className={`h-[100px] ${currImg === darkOnMan ? "border" : ""}`}
-              onClick={() => setCurrImg(darkOnMan)}
-            />
+            {subImages?.map((d, index) => (
+              <img
+                src={d}
+                alt={d}
+                className={`h-[100px] ${currImg === d ? "border" : ""}`}
+                onClick={() => setCurrImg(d)}
+                key={index}
+              />
+            ))}
           </div>
           <div className="md:w-[283px] w-full">
-            {/* <ImageZoom
-              src={currImg}
-              alt="Printed V-Neck T-shirt"
-              className="object-cover md:w-auto"
-              fullWidth={true}
-            /> */}
             <img
               src={currImg}
               alt="card"
@@ -81,48 +156,91 @@ const SingleProduct = () => {
 
         {/* Right - Product Details */}
         <div className="flex-1">
-          <h1 className="text-3xl urbanist font-semibold mb-4">
-            {productDetail?.title}
-          </h1>
-          <p className="text-3xl text-gray-800 urbanist mb-6">
-            Rs. {productDetail?.original_price}
-          </p>
-          <div className="text-gray-600 mb-6">
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: productDetail?.description,
-              }}
-            ></div>
+          {/* heading and wishlist */}
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl urbanist font-semibold">
+              {productDetail?.title}
+            </h1>
+            {/* heart */}
+            <div className="">
+              {isWishlisted ? (
+                <FaHeart
+                  className="cursor-pointer text-red-500"
+                  onClick={() => removeFromWishList(productDetail?._id)}
+                  size={20}
+                />
+              ) : (
+                <FaRegHeart
+                  className="cursor-pointer text-gray-500"
+                  onClick={() => addToWishlist(productDetail?._id)}
+                  size={20}
+                />
+              )}
+            </div>
+          </div>
+          {/* prices */}
+          <div className="flex items-baseline gap-3">
+            <p className="text-3xl text-gray-800 urbanist mb-6">
+              Rs.{" "}
+              {productDetail?.discounted_price === "0"
+                ? productDetail?.original_price
+                : productDetail?.discounted_price}
+            </p>
+            {productDetail?.discounted_price !== "0" && (
+              <p className="text-[1.2em] text-gray-500 urbanist mb-6 line-through">
+                Rs. {productDetail?.original_price}
+              </p>
+            )}
           </div>
 
-          {/* Quantity Selector + Add to Cart */}
-          <div className="flex items-center mb-6 gap-4">
-            <div className="flex items-center border border-gray-300 py-1.5">
-              <button
-                onClick={decreaseQuantity}
-                className="px-3 py-1 text-lg font-bold cursor-pointer"
-              >
-                -
-              </button>
-              <span className="px-4">{quantity}</span>
-              <button
-                onClick={increaseQuantity}
-                className="px-3 py-1 text-lg font-bold cursor-pointer"
-              >
-                +
-              </button>
-            </div>
+          <div className="flex items-center border border-gray-300 py-1.5 w-fit">
+            <button
+              onClick={decreaseQuantity}
+              className="px-3 py-1 text-lg font-bold cursor-pointer"
+            >
+              -
+            </button>
+            <span className="px-4">{quantity}</span>
+            <button
+              onClick={increaseQuantity}
+              className="px-3 py-1 text-lg font-bold cursor-pointer"
+            >
+              +
+            </button>
+          </div>
 
+          {/* Select Size & Color */}
+          <div className="flex items-center mb-6 gap-6 mt-6">
             <div className="text-[0.9em] flex items-center gap-4">
               <select className="tracking-widest border px-3 py-4 text-[0.8em]">
                 <option value="">CHOOSE THE SIZE</option>
-                <option value="36">36</option>
-                <option value="37">37</option>
-                <option value="38">38</option>
-                <option value="39">39</option>
+                {productDetail?.size?.map((d, index) => (
+                  <option value={d} key={index}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
+            {productDetail?.color?.[0]?.split(",")?.length > 0 && (
+              <div>
+                <p className="text-[0.8em] tracking-widest mb-1 text-nowrap">
+                  CHOOSE THE COLOR
+                </p>
+                <div className="flex items-center gap-2">
+                  {productDetail?.color?.[0]?.split(",")?.map((color, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div
+                        className={`w-5 h-5 ${
+                          selectedColor === color && "border-2 border-black"
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSelectedColor(color)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <button className="flex items-center gap-2 poppins bg-black text-white px-6 py-3 cursor-pointer hover:bg-white hover:text-black hover:border text-[0.8em] tracking-wider mb-5">
@@ -144,39 +262,58 @@ const SingleProduct = () => {
         </div>
       </div>
       <div className="md:my-10">
-        <ProductTabs />
+        <ProductTabs productDetail={productDetail} />
       </div>
-      {/* related products */}
-      <div className="my-10 md:block hidden">
-        <p className="text-center text-3xl urbanist font-semibold mb-6">
-          Related Products
-        </p>
-        <div className="flex items-center justify-center gap-6">
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-        </div>
-      </div>
-      {/* related products - small screen */}
-      <div className="my-10 md:hidden">
-        <p className="text-center text-3xl urbanist font-semibold mb-6">
-          Related Products
-        </p>
-        <div className="flex items-center justify-center">
-          <div className="md:hidden grid sm:grid-cols-2 lg:grid-cols-1 gap-10 pb-20 mt-6">
-            <ProductCardWithoutHover />
-            <ProductCardWithoutHover />
-            <ProductCardWithoutHover />
-            <ProductCardWithoutHover />
+      {prodByCat?.length > 0 && (
+        <>
+          {/* related products */}
+          <div className="my-10 md:block hidden">
+            <p className="text-center text-3xl urbanist font-semibold mb-6">
+              Related Products
+            </p>
+            <div className="flex items-center justify-center gap-6">
+              {isLoading
+                ? Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index}>
+                      <ProductCardSkeleton />
+                    </div>
+                  ))
+                : prodByCat?.map((d, index) => (
+                    <div key={index}>
+                      <ProductCard productDetails={d} />
+                    </div>
+                  ))}
+            </div>
           </div>
-        </div>
-      </div>
+          {/* related products - small screen */}
+          <div className="my-10 md:hidden">
+            <p className="text-center text-3xl urbanist font-semibold mb-6">
+              Related Products
+            </p>
+            <div className="flex items-center justify-center">
+              <div className="md:hidden grid sm:grid-cols-2 lg:grid-cols-1 gap-10 pb-20 mt-6">
+                {isLoading
+                  ? Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index}>
+                        <ProductCardSkeleton />
+                      </div>
+                    ))
+                  : prodByCat?.map((d, index) => (
+                      <div key={index}>
+                        <ProductCardWithoutHover productDetails={d} />
+                      </div>
+                    ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       <Footer />
     </div>
   );
 };
 
-function ProductTabs() {
+function ProductTabs({ productDetail }) {
   const tabs = ["Description", "Additional information", "Reviews (0)"];
   const [activeTab, setActiveTab] = useState("Description");
 
@@ -185,16 +322,12 @@ function ProductTabs() {
       case "Description":
         return (
           <div className="text-gray-600 mt-6 space-y-6 text-[0.8em]">
-            <p>
-              Etiam cursus condimentum vulputate. Nulla nisi orci, vulputate at
-              dolor et, malesuada ultrices nisi. Ut varius ex ut purus
-              porttitor, a facilisis orci condimentum. Nullam in elit et sapien
-              ornare pellentesque at ac lorem.
-            </p>
-            <p>
-              Sed lobortis elit nec lacus congue tristique. Sed nunc orci,
-              imperdiet et accumsan ac, tempor ut ante.
-            </p>
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: productDetail?.description,
+              }}
+            ></div>
           </div>
         );
       case "Additional information":
@@ -204,11 +337,28 @@ function ProductTabs() {
               <tbody>
                 <tr className="border-b border-gray-200">
                   <th className="p-4 bg-gray-100 font-semibold">Color</th>
-                  <td className="p-4">Black, Purple</td>
+                  <div className="flex items-center gap-2 p-4">
+                    {productDetail?.color?.[0]
+                      ?.split(",")
+                      ?.map((color, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div
+                            className={`w-5 h-5`}
+                            style={{ backgroundColor: color }}
+                          />
+                        </div>
+                      ))}
+                  </div>
                 </tr>
                 <tr>
                   <th className="p-4 bg-gray-100 font-semibold">Size</th>
-                  <td className="p-4">M, S</td>
+                  <div className="flex items-center gap-2 p-4">
+                    {productDetail?.size?.map((d, index) => (
+                      <span value={d} key={index}>
+                        {d}
+                      </span>
+                    ))}
+                  </div>
                 </tr>
               </tbody>
             </table>

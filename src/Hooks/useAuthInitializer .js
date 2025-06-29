@@ -7,7 +7,7 @@ import axiosPrivate from "../axiosPrivate";
 
 export const useAuthInitializer = () => {
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const hasFetched = useRef(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const authInfo = useSelector((state) => state.auth.authInfo);
@@ -18,9 +18,10 @@ export const useAuthInitializer = () => {
       const token = localStorage.getItem("accessToken");
 
       if (!token) {
-        setIsLoading(false);
         return;
       }
+
+      setIsLoading(true);
 
       try {
         const decoded = jwtDecode(token);
@@ -28,7 +29,8 @@ export const useAuthInitializer = () => {
 
         if (decoded.exp < currentTime) {
           localStorage.removeItem("accessToken");
-          window.location.href = "/login";
+          // window.location.href = "/login";
+          setIsLoading(false);
           return;
         }
 
@@ -67,7 +69,6 @@ export const useAuthInitializer = () => {
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!authInfo?.userId) return;
-
       try {
         const response = await axiosPrivate.get("/wishlist");
         dispatch(setAllWishlist(response.data.wishlist));
@@ -79,5 +80,5 @@ export const useAuthInitializer = () => {
     fetchWishlist();
   }, [authInfo, dispatch]);
 
-  return { isLoading, isAuthorized };
+  return { isLoading, isAuthenticated: !!authInfo?.userId };
 };
